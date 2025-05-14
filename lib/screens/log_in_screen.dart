@@ -23,19 +23,25 @@ class _LoginScreenState extends State<LogInScreen> {
             right: 0,
             child: Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
                     'assets/logo.png',
                     height: 80,
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "RockStock",
-                    style: TextStyle(
-                      fontSize: 24,
+                  Text(
+                    showBottomContainer
+                        ? 'Rock Store'
+                        : 'Welcome to\nWarehouse',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 28,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -44,15 +50,22 @@ class _LoginScreenState extends State<LogInScreen> {
             child: AnimatedOpacity(
               opacity: showBottomContainer ? 0.0 : 1.0,
               duration: const Duration(milliseconds: 300),
-              child: ElevatedButton(
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.white, width: 1.5),
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 80, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
                 onPressed: () {
                   setState(() {
                     showBottomContainer = true;
                   });
                 },
-                child: const Text(
-                  "Log In",
-                ),
+                child: const Text("Log In"),
               ),
             ),
           ),
