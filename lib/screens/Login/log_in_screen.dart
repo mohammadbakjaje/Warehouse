@@ -323,7 +323,7 @@ class _LoginScreenState extends State<LogInScreen> {
                                 Center(
                                   child: RichText(
                                     text: TextSpan(
-                                      text: "ليس لديك حساب؟ ",
+                                      text: "التسجيل كامين مستودع؟ ",
                                       style: TextStyle(color: Colors.grey[700]),
                                       children: [
                                         TextSpan(
