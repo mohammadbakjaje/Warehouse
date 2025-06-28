@@ -3,19 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:warehouse/helper/my_colors.dart';
 import 'package:warehouse/screens/Login/bloc/login_cubit.dart';
 import 'package:warehouse/screens/Login/bloc/login_state.dart';
-import 'package:warehouse/screens/Login/log_in_screen_for_warehouse_keeper.dart';
+import 'package:warehouse/screens/Login/log_in_screen.dart';
 import 'package:warehouse/screens/MainUser/user_home.dart';
 import 'package:warehouse/widget/text_field_coustume.dart';
 
-class LogInScreen extends StatefulWidget {
-  LogInScreen({super.key});
-  static String id = "LoginPage";
+class LogInScreenForWarehouseKeeper extends StatefulWidget {
+  LogInScreenForWarehouseKeeper({super.key});
+  static String id = "LoginPageWarehouseKeeper";
 
   @override
-  State<LogInScreen> createState() => _LoginScreenState();
+  State<LogInScreenForWarehouseKeeper> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LogInScreen> {
+class _LoginScreenState extends State<LogInScreenForWarehouseKeeper> {
   bool showBottomContainer = false;
   final GlobalKey<FormState> formkey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
@@ -132,7 +132,7 @@ class _LoginScreenState extends State<LogInScreen> {
                               });
                             },
                             child: const Text(
-                              "تسجيل الدخول كموظف",
+                              "تسجيل الدخول كامين مستودع",
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
@@ -285,7 +285,7 @@ class _LoginScreenState extends State<LogInScreen> {
                                                   .loginBloc(
                                                       emailController.text,
                                                       passwordController.text,
-                                                      "user");
+                                                      "warehouseKeeper");
                                             }
                                           },
                                           child: const Text(
@@ -325,15 +325,15 @@ class _LoginScreenState extends State<LogInScreen> {
                                 Center(
                                   child: GestureDetector(
                                     onTap: () {
-                                      Navigator.of(context)
-                                          .pushReplacement(MaterialPageRoute(
-                                        builder: (context) =>
-                                            LogInScreenForWarehouseKeeper(),
-                                      ));
+                                      Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                          builder: (context) => LogInScreen(),
+                                        ),
+                                      );
                                     },
                                     child: RichText(
                                       text: TextSpan(
-                                        text: "التسجيل كامين مستودع؟ ",
+                                        text: "التسجيل كموظف؟ ",
                                         style:
                                             TextStyle(color: Colors.grey[700]),
                                         children: [

@@ -26,10 +26,8 @@ class LoginServerManager {
 
       print("Response Status: ${response.statusCode}");
       print("Response Body: ${response.body}");
-
+      final Map<String, dynamic> data = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-
         // تحقق من success
         if (data['success'] == true) {
           // حفظ التوكن
@@ -42,7 +40,7 @@ class LoginServerManager {
           throw (data['message'] ?? 'Login failed');
         }
       } else {
-        throw ('Server error: ${response.statusCode}');
+        throw (data['message'] ?? 'Login failed');
       }
     } catch (e) {
       print("Login error: $e");
