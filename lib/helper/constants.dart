@@ -2,7 +2,7 @@ import 'package:get_storage/get_storage.dart';
 import 'local_network.dart';
 
 final box = GetStorage();
-final String ipv4 = "192.168.148.154:80";
+final String ipv4 = "192.168.137.168:80";
 String BaseUrl = 'http://$ipv4/api';
 final String productsSearch = "products";
 final String storesSearch = "stores";
