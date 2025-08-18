@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warehouse/helper/my_colors.dart';
 
 class ShowLastRequest extends StatelessWidget {
   static String id = "ShowLastRequest";
@@ -12,48 +13,51 @@ class ShowLastRequest extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Previous Request',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 16),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: requests.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Request ID ${requests[index]["id"]}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        backgroundColor: MyColors.orangeBasic,
+        foregroundColor: Colors.black,
+        title: Text("Previous Request"),
+      ),
+      body: Container(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: requests.length,
+                itemBuilder: (context, index) {
+                  // تغيير اللون بين الخلفية 1 و 2
+                  Color cardColor = index % 2 == 0
+                      ? MyColors.background
+                      : MyColors.background2;
+                  return Card(
+                    color: cardColor,
+                    margin: EdgeInsets.symmetric(vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Request ID ${requests[index]["id"]}',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text('Date: ${requests[index]["date"]}'),
-                        Text('Status: ${requests[index]["status"]}'),
-                      ],
+                          SizedBox(height: 8),
+                          Text('Date: ${requests[index]["date"]}'),
+                          Text('Status: ${requests[index]["status"]}'),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

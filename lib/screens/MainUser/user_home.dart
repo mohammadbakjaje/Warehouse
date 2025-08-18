@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warehouse/helper/my_colors.dart';
 import 'package:warehouse/screens/Add%20request/add_request_page.dart';
 import 'package:warehouse/screens/Login/log_in_screen.dart';
 import 'package:warehouse/screens/Login/log_in_screen_for_warehouse_keeper.dart';
@@ -14,7 +15,7 @@ class UserHome extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: Colors.orange,
+        backgroundColor: MyColors.orangeBasic,
         title: const Text('القائمة الرئيسية'),
         centerTitle: true,
         actions: [
@@ -47,7 +48,7 @@ class UserHome extends StatelessWidget {
             Expanded(
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: MyColors.orangeBasic,
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
