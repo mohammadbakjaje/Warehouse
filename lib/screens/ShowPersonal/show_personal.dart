@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:warehouse/helper/my_colors.dart';
+import 'package:warehouse/screens/ShowPersonal/show_room_personal.dart';
 
 class ShowPersonal extends StatelessWidget {
   static String id = "ShowPersonal";
@@ -8,7 +10,7 @@ class ShowPersonal extends StatelessWidget {
     {"room": "202", "building": "Building B"},
     {"room": "303", "building": "Building C"},
     {"room": "404", "building": "Building D"},
-    {"room": "333333", "building": "Building E"},
+    {"room": "909", "building": "Building E"},
     {"room": "505", "building": "Building F"},
   ];
 
@@ -16,24 +18,36 @@ class ShowPersonal extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(Icons.arrow_back, color: Colors.black),
+        foregroundColor: Colors.white,
         title: const Text(
-          " العهد الشخصية للموظف",
-          style: TextStyle(color: Colors.black),
+          "العهد الشخصية للموظف",
+          style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: MyColors.orangeBasic,
         elevation: 1,
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: rooms.length,
         itemBuilder: (context, index) {
+          Color cardColor =
+              index % 2 == 0 ? MyColors.background : MyColors.background2;
           final room = rooms[index];
           return GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ShowRoomPersonal(
+                    roomNumber: room['room'] ?? "",
+                    building: room['building'] ?? "",
+                  ),
+                ),
+              );
+            },
             child: Card(
-              color: Colors.black87,
+              color: cardColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -42,16 +56,15 @@ class ShowPersonal extends StatelessWidget {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 title: Text(
-                  "Room [${room['room']}]",
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                  "الغرفة ${room['room']}",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
                   room['building'] ?? "",
-                  style: const TextStyle(color: Colors.white70),
+                  style: const TextStyle(color: Colors.grey),
                 ),
                 trailing: const Icon(Icons.arrow_forward_ios,
-                    color: Colors.white, size: 18),
+                    color: Colors.black, size: 18),
               ),
             ),
           );
