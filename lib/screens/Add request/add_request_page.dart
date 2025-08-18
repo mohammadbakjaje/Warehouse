@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:warehouse/helper/my_colors.dart';
 
 class AddRequestPage extends StatefulWidget {
   static String id = "AddRequestPage";
@@ -71,7 +72,7 @@ class _AddRequestPage extends State<AddRequestPage> {
                   decoration: InputDecoration(
                     hintText: "ابحث عن منتج",
                     filled: true,
-                    fillColor: Colors.grey[200], // لون خلفية الحقل
+                    fillColor: MyColors.background2, // لون خلفية الحقل
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -99,7 +100,7 @@ class _AddRequestPage extends State<AddRequestPage> {
                 decoration: InputDecoration(
                   hintText: "أدخل الكمية",
                   filled: true,
-                  fillColor: Colors.grey[200],
+                  fillColor: MyColors.background2,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -127,15 +128,25 @@ class _AddRequestPage extends State<AddRequestPage> {
               SizedBox(height: 16),
 
               // زر إضافة منتج مع تصميم مشابه للصورة
-              ElevatedButton(
-                onPressed: addProduct,
-                child: Text("+ إضافة منتج"),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              Center(
+                child: Container(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: addProduct,
+                    child: Text(
+                      "+ إضافة منتج",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: MyColors.orangeBasic,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 14, horizontal: 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      textStyle: TextStyle(fontSize: 16),
+                    ),
                   ),
-                  textStyle: TextStyle(fontSize: 16),
                 ),
               ),
               SizedBox(height: 16),
@@ -183,22 +194,43 @@ class _AddRequestPage extends State<AddRequestPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ElevatedButton(
-                    onPressed: clearAll,
-                    child: Text('مسح الكل'),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: clearAll,
+                        child: Text(
+                          'مسح الكل',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: MyColors.orangeBasic,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // منطق تقديم الطلب هنا
-                    },
-                    child: Text('تقديم الطلب'),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // منطق تقديم الطلب هنا
+                        },
+                        child: Text(
+                          'تقديم الطلب',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: MyColors.orangeBasic,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
                     ),
                   ),
                 ],
