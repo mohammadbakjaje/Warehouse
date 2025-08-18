@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warehouse/helper/my_colors.dart';
-import 'package:warehouse/screens/ShowPersonal/show_room_personal.dart';
+import 'package:warehouse/screens/ShowRoomPersonal/show_room_personal.dart';
 
 class ShowPersonal extends StatelessWidget {
   static String id = "ShowPersonal";
