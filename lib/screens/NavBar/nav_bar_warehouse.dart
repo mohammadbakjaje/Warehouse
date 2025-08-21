@@ -39,7 +39,7 @@ class _MainPageState extends State<MainPage> {
           });
         },
         items: [
-          Icon(Icons.warehouse, size: 30, color: Colors.white),
+          Icon(Icons.home, size: 30, color: Colors.white),
           Icon(Icons.account_circle, size: 30, color: Colors.white),
           Icon(Icons.notifications, size: 30, color: Colors.white),
         ],
