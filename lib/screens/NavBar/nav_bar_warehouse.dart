@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:warehouse/helper/my_colors.dart';
 import 'package:warehouse/screens/MainUser/user_home.dart';
 
+import '../Notes/notes_screen.dart';
+
 class MainPage extends StatefulWidget {
   @override
   _MainPageState createState() => _MainPageState();
@@ -21,8 +23,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyColors.background,
-      extendBody: true, // عشان يبين الناف بار بشكل حلو
+      extendBody: true,
       body: _pages[_currentIndex],
       bottomNavigationBar: CurvedNavigationBar(
         index: _currentIndex,
@@ -55,16 +56,6 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text("المعلومات الشخصية")),
       body: Center(child: Text("محتوى صفحة الحساب")),
-    );
-  }
-}
-
-class NotificationsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("الإشعارات")),
-      body: Center(child: Text("محتوى صفحة الإشعارات")),
     );
   }
 }
