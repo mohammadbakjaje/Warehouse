@@ -1,12 +1,17 @@
 abstract class AddRequestEvent {}
 
 class AddProductEvent extends AddRequestEvent {
+  final int productId;
   final String product;
   final String quantity;
   final String note;
 
-  AddProductEvent(
-      {required this.product, required this.quantity, required this.note});
+  AddProductEvent({
+    required this.productId,
+    required this.product,
+    required this.quantity,
+    required this.note,
+  });
 }
 
 class ClearAllEvent extends AddRequestEvent {}

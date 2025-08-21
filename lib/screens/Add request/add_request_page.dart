@@ -19,6 +19,7 @@ class _AddRequestPage extends State<AddRequestPage> {
   final TextEditingController productNameController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
+  Map<String, dynamic>? selectedProduct;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +49,8 @@ class _AddRequestPage extends State<AddRequestPage> {
                         controller: productNameController,
                         decoration: InputDecoration(
                           hintText: "ابحث عن منتج",
+                          hintTextDirection:
+                              TextDirection.rtl, // خلي الـ hint RTL
                           filled: true,
                           fillColor: MyColors.background2,
                           border: OutlineInputBorder(
@@ -55,11 +58,11 @@ class _AddRequestPage extends State<AddRequestPage> {
                             borderSide: BorderSide.none,
                           ),
                         ),
+                        textDirection:
+                            TextDirection.rtl, // يضمن النص داخل الحقل RTL
                       ),
                       suggestionsCallback: (pattern) async {
-                        if (pattern.isEmpty) {
-                          return [];
-                        }
+                        if (pattern.isEmpty) return [];
                         try {
                           final apiService =
                               context.read<AddRequestBloc>().apiService;
@@ -70,14 +73,39 @@ class _AddRequestPage extends State<AddRequestPage> {
                         }
                       },
                       itemBuilder: (context, suggestion) {
-                        return ListTile(
-                          title: Text(suggestion['name'] ?? "No Name"),
+                        return Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: ListTile(
+                            title: Text(
+                              suggestion['name'] ?? "No Name",
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                        );
+                      },
+                      noItemsFoundBuilder: (context) {
+                        return Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: Align(
+                            alignment:
+                                Alignment.centerRight, // يخليها تبدأ من اليمين
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "لا يوجد مواد بهذا الاسم",
+                                textAlign: TextAlign.right, // محاذاة يمين
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                          ),
                         );
                       },
                       onSuggestionSelected: (suggestion) {
                         productNameController.text = suggestion['name'] ?? '';
+                        selectedProduct = suggestion; // حفظ المنتج الكامل
                       },
                     ),
+
                     SizedBox(height: 16),
                     Text('الكمية',
                         style: TextStyle(fontWeight: FontWeight.bold)),
@@ -114,13 +142,48 @@ class _AddRequestPage extends State<AddRequestPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
+                          if (selectedProduct == null ||
+                              selectedProduct!['id'] == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text("الرجاء اختيار منتج من القائمة")),
+                            );
+                            return;
+                          }
+
+                          if (quantityController.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("الرجاء إدخال الكمية")),
+                            );
+                            return;
+                          }
+
+                          final regex = RegExp(
+                              r'^[0-9]+$'); // يسمح فقط بالأرقام الإنجليزية
+                          if (!regex.hasMatch(quantityController.text.trim())) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      "الرجاء إدخال الكمية بأرقام إنجليزية فقط")),
+                            );
+                            return;
+                          }
+
                           BlocProvider.of<AddRequestBloc>(context).add(
                             AddProductEvent(
+                              productId: selectedProduct!['id'],
                               product: productNameController.text,
                               quantity: quantityController.text,
                               note: noteController.text,
                             ),
                           );
+
+                          // تفريغ الحقول بعد الإضافة
+                          productNameController.clear();
+                          quantityController.clear();
+                          noteController.clear();
+                          selectedProduct = null;
                         },
                         child: Text(
                           "+ إضافة منتج",
@@ -161,8 +224,7 @@ class _AddRequestPage extends State<AddRequestPage> {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                      'الكمية: ${product["quantity"] ?? ""} pcs'),
+                                  Text('الكمية: ${product["quantity"] ?? ""}'),
                                   Text('ملاحظة: ${product["note"] ?? ""}'),
                                 ],
                               ),
@@ -206,8 +268,43 @@ class _AddRequestPage extends State<AddRequestPage> {
                           child: Container(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {
-                                // منطق تقديم الطلب هنا
+                              onPressed: () async {
+                                try {
+                                  final bloc =
+                                      BlocProvider.of<AddRequestBloc>(context);
+                                  final api = bloc.apiService;
+
+                                  if (bloc.productRequests.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              "الرجاء إضافة منتج واحد على الأقل")),
+                                    );
+                                    return;
+                                  }
+
+                                  await api.submitRequest(
+                                    date: DateTime.now()
+                                        .toIso8601String()
+                                        .split('T')
+                                        .first,
+                                    warehouseKeeperId: 1, // غيّره حسب الحاجة
+                                    items: bloc.productRequests,
+                                  );
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text("تم إرسال الطلب بنجاح")),
+                                  );
+
+                                  bloc.add(ClearAllEvent());
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text("فشل في إرسال الطلب: $e")),
+                                  );
+                                }
                               },
                               child: Text('تقديم الطلب',
                                   style: TextStyle(color: Colors.white)),

@@ -9,7 +9,23 @@ class AddRequestBloc extends Bloc<AddRequestEvent, AddRequestState> {
   AddRequestBloc({required this.apiService}) : super(AddRequestInitial()) {
     // معالج الحدث AddProductEvent
     on<AddProductEvent>((event, emit) {
+      // التحقق من الكمية
+      if (event.quantity.trim().isEmpty) {
+        emit(AddRequestErrorState(errorMessage: "الكمية مطلوبة"));
+        return;
+      }
+
+      // التحقق من أن الكمية تحتوي فقط على أرقام إنجليزية
+      final regex = RegExp(r'^[0-9]+$'); // يقبل فقط 0-9
+      if (!regex.hasMatch(event.quantity)) {
+        emit(AddRequestErrorState(
+            errorMessage: "الرجاء إدخال الكمية بأرقام إنجليزية فقط"));
+        return;
+      }
+
+      // إذا التحقق سليم → أضف المنتج
       productRequests.add({
+        'product_id': event.productId.toString(),
         'product': event.product,
         'quantity': event.quantity,
         'note': event.note,

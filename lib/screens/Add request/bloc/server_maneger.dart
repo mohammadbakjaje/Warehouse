@@ -42,4 +42,41 @@ class ApiService {
       throw Exception('Error fetching products: $e');
     }
   }
+
+  Future<void> submitRequest({
+    required String date,
+    required int warehouseKeeperId,
+    required List<Map<String, String>> items,
+  }) async {
+    final url = Uri.parse('http://10.65.0.119:80/api/MRequest');
+
+    final requestBody = {
+      'date': date,
+      'warehouse_keeper_id': warehouseKeeperId,
+      'items': items.map((item) {
+        return {
+          'product_id': int.parse(item['product_id']!),
+          'quantity_requested': int.parse(item['quantity']!),
+          'notes': item['note']!,
+        };
+      }).toList(),
+    };
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
+      },
+      body: json.encode(requestBody),
+    );
+
+    print("Submit Request Status: ${response.statusCode}");
+    print("Submit Request Body: ${response.body}");
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('فشل في إرسال الطلب');
+    }
+  }
 }
