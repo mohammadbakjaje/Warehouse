@@ -34,6 +34,9 @@ class LoginServerManager {
           await CacheNetwork.insertToCache(
               key: "token", value: data['data']['access_token']);
           print("Token saved: ${data['data']['access_token']}");
+          await CacheNetwork.insertToCache(
+              key: "userId", value: data['data']['user']['id']);
+          print("Id saved: ${data['data']['user']['id']}");
 
           return LoginModel.fromJson(data);
         } else {

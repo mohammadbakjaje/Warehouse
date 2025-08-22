@@ -1,65 +1,111 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart'; // استيراد مكتبة intl
 import 'package:warehouse/helper/my_colors.dart';
+import 'package:warehouse/screens/ShowLastRequest/BLOC/request_cubit.dart';
 
 class ShowLastRequest extends StatelessWidget {
   static String id = "ShowLastRequest";
-  final List<Map<String, String>> requests = [
-    {"id": "12345", "date": "01/25/2024", "status": "Submitted"},
-    {"id": "67890", "date": "01/20/2024", "status": "Submitted"},
-    {"id": "23456", "date": "01/15/2024", "status": "Submitted"},
-    {"id": "98765", "date": "01/10/2024", "status": "Submitted"},
-  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: MyColors.orangeBasic,
-        foregroundColor: Colors.black,
-        title: Text("Previous Request"),
-      ),
-      body: Container(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: requests.length,
-                itemBuilder: (context, index) {
-                  // تغيير اللون بين الخلفية 1 و 2
-                  Color cardColor = index % 2 == 0
-                      ? MyColors.background
-                      : MyColors.background2;
-                  return Card(
-                    color: cardColor,
-                    margin: EdgeInsets.symmetric(vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Request ID ${requests[index]["id"]}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text('Date: ${requests[index]["date"]}'),
-                          Text('Status: ${requests[index]["status"]}'),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+    // استدعاء البيانات عند بداية تحميل الشاشة
+    context.read<RequestCubit>().fetchRequests();
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        // تحديد اتجاه النص من اليمين لليسار
+        body: Column(
+          children: [
+            AppBar(
+              backgroundColor: MyColors.orangeBasic,
+              foregroundColor: Colors.white,
+              title: Text(
+                "الطلبات السابقة",
+                style: TextStyle(color: Colors.white),
               ),
-            ],
-          ),
+              centerTitle: true,
+            ),
+            BlocBuilder<RequestCubit, RequestState>(
+              builder: (context, state) {
+                if (state.isLoading) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (state.error.isNotEmpty) {
+                  return Center(child: Text(state.error));
+                }
+
+                return Container(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: state.requests.length,
+                          itemBuilder: (context, index) {
+                            // تغيير اللون بين الخلفية 1 و 2
+                            Color cardColor = index % 2 == 0
+                                ? MyColors.background
+                                : MyColors.background2;
+
+                            // تحويل التاريخ من التنسيق الحالي
+                            String formattedDate =
+                                formatDate(state.requests[index]["date"]!);
+
+                            return Card(
+                              color: cardColor,
+                              margin: EdgeInsets.symmetric(vertical: 8),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'رقم الطلب: ${state.requests[index]["id"]}',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        'التاريخ: $formattedDate',
+                                        textAlign: TextAlign
+                                            .right, // محاذاة النص لليمين
+                                      ),
+                                    ),
+                                    Text(
+                                      'الحالة: ${state.requests[index]["status"]}',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  // دالة لتحويل التاريخ إلى التنسيق المطلوب
+  String formatDate(String date) {
+    // تحويل التاريخ باستخدام DateFormat
+    DateTime parsedDate = DateTime.parse(date);
+    // تنسيق التاريخ ليعرض التاريخ والوقت بالدقائق
+    return DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
   }
 }
