@@ -1,109 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:warehouse/screens/Notes/Bloc/Note_cubit.dart';
+import 'package:warehouse/screens/Notes/Bloc/Note_manger.dart';
+import 'package:warehouse/screens/Notes/Bloc/Note_model.dart';
+import 'package:warehouse/screens/Notes/Bloc/Note_states.dart';
 import 'package:warehouse/helper/my_colors.dart';
+import 'package:warehouse/screens/Notes/Bloc/OrderDetailsModel.dart';
 
-// موديل للإشعار
-class NotificationModel {
-  final int id;
-  final String status; // "قبول" أو "رفض"
-  final String message;
-  final String date;
-  final String material;
-  final int quantity;
-
-  NotificationModel({
-    required this.id,
-    required this.status,
-    required this.message,
-    required this.date,
-    required this.material,
-    required this.quantity,
-  });
-
-  factory NotificationModel.fromJson(Map<String, dynamic> json) {
-    return NotificationModel(
-      id: json['id'],
-      status: json['status'],
-      message: json['message'],
-      date: json['date'],
-      material: json['material'],
-      quantity: json['quantity'],
-    );
-  }
-}
-
-//الصفحة الاساسية
-class NotificationsPage extends StatefulWidget {
-  @override
-  _NotificationsPageState createState() => _NotificationsPageState();
-}
-
-class _NotificationsPageState extends State<NotificationsPage> {
-  late Future<List<NotificationModel>> notificationsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    notificationsFuture = fetchNotifications(); // استدعاء البيانات
-  }
-
-  // دالة تجيب بيانات (محاكاة - بدالها API/Firebase)
-  Future<List<NotificationModel>> fetchNotifications() async {
-    await Future.delayed(Duration(seconds: 1)); // محاكاة تأخير
-
-    return [
-      NotificationModel(
-        id: 101,
-        status: "قبول",
-        message:
-            "وافق المدير على طلبك يرجى التوجه إلى أمين المستودع لاستلام المواد.",
-        date: "2025-08-21",
-        material: "قلم",
-        quantity: 20,
-      ),
-      NotificationModel(
-        id: 102,
-        status: "رفض",
-        message: "لم تتم الموافقة على طلبك، يرجى مراجعة الإدارة.",
-        date: "2025-08-20",
-        material: "برغي",
-        quantity: 15,
-      ),
-    ];
-  }
-
+class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      // 🔹 RTL لكل الصفحة
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
+          foregroundColor: Colors.white,
           title: Text("الإشعارات"),
           backgroundColor: MyColors.orangeBasic,
           centerTitle: true,
         ),
-        body: FutureBuilder<List<NotificationModel>>(
-          future: notificationsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                  child:
-                      CircularProgressIndicator(color: MyColors.orangeBasic));
-            } else if (snapshot.hasError) {
-              return Center(child: Text("حدث خطأ أثناء جلب البيانات"));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return _buildEmptyState();
-            }
-
-            final notifications = snapshot.data!;
-            return ListView.builder(
-              padding: EdgeInsets.all(16),
-              itemCount: notifications.length,
-              itemBuilder: (context, index) {
-                return _buildNotificationCard(context, notifications[index]);
-              },
-            );
-          },
+        body: BlocProvider(
+          create: (context) =>
+              NotificationCubit(NotificationService())..fetchNotifications(),
+          child: BlocBuilder<NotificationCubit, NotificationState>(
+            builder: (context, state) {
+              if (state is NotificationLoading) {
+                return Center(
+                    child:
+                        CircularProgressIndicator(color: MyColors.orangeBasic));
+              } else if (state is NotificationError) {
+                return Center(child: Text(state.message));
+              } else if (state is NotificationLoaded) {
+                final notifications = state.notifications;
+                return ListView.builder(
+                  padding: EdgeInsets.all(16),
+                  itemCount: notifications.length,
+                  itemBuilder: (context, index) {
+                    return _buildNotificationCard(
+                        context, notifications[index]);
+                  },
+                );
+              } else {
+                return _buildEmptyState();
+              }
+            },
+          ),
         ),
       ),
     );
@@ -126,7 +68,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildNotificationCard(BuildContext context, NotificationModel notif) {
-    final bool isAccepted = notif.status == "قبول";
+    final bool isAccepted;
+    if (notif.title == "تمت الموافقة على طلبك") {
+      isAccepted = true;
+    } else {
+      isAccepted = false;
+    }
+
+    // تنسيق التاريخ
+    String formattedDate = _formatDate(notif.createdAt);
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -148,7 +98,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    "تم ${notif.status} طلبك رقم ${notif.id}",
+                    "${notif.title} رقم ${notif.id}",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -166,7 +116,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  notif.date,
+                  formattedDate, // استخدام التاريخ المُنسق هنا
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 ElevatedButton(
@@ -177,7 +127,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ),
                   ),
                   onPressed: () {
-                    _showOrderDetails(context, notif);
+                    _showOrderDetails(
+                        context, notif.relatedId); // تمرير relatedId
                   },
                   child: Text(
                     "عرض الطلب",
@@ -192,49 +143,103 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
-  void _showOrderDetails(BuildContext context, NotificationModel notif) {
+  // دالة لتنسيق التاريخ
+  String _formatDate(String dateString) {
+    try {
+      DateTime date = DateTime.parse(dateString);
+      // تنسيق التاريخ ليعرض اليوم/الشهر/السنة والساعة:الدقيقة
+      return DateFormat('yyyy-MM-dd HH:mm').format(date);
+    } catch (e) {
+      return "تاريخ غير صالح"; // في حالة حدوث خطأ في تنسيق التاريخ
+    }
+  }
+
+  // دالة لعرض تفاصيل الطلب داخل الـ Dialog
+  void _showOrderDetails(BuildContext context, int relatedId) {
     showDialog(
       context: context,
       builder: (context) => Directionality(
-        // 🔹 حتى الـ Dialog بالعربي
         textDirection: TextDirection.rtl,
         child: Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("تفاصيل الطلب",
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Divider(),
-                SizedBox(height: 8),
-                Text(" اسم المادة: ${notif.material}",
-                    style: TextStyle(fontSize: 16)),
-                SizedBox(height: 8),
-                Text(" الكمية: ${notif.quantity}",
-                    style: TextStyle(fontSize: 16)),
-                SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: MyColors.orangeBasic,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+            child: FutureBuilder<OrderDetailsModel?>(
+              future: NotificationService()
+                  .fetchOrderDetails(relatedId), // استدعاء API
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("حدث خطأ أثناء جلب تفاصيل الطلب"));
+                } else if (snapshot.hasData) {
+                  final orderDetails = snapshot.data!;
+                  return SingleChildScrollView(
+                    // يسمح بالتمرير عند الحاجة
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // العنوان
+                        Text(
+                          "تفاصيل الطلب",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                          textAlign:
+                              TextAlign.center, // محاذاة العنوان في المنتصف
+                        ),
+                        Divider(),
+                        SizedBox(height: 8),
+                        // حالة الطلب
+                        Text(
+                          "حالة الطلب: ${orderDetails.status}",
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.right, // محاذاة النص لليمين
+                        ),
+                        SizedBox(height: 16),
+                        // كلمة المنتجات
+                        Text(
+                          "المنتجات:",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.right, // محاذاة النص لليمين
+                        ),
+                        SizedBox(height: 8),
+                        // قائمة المنتجات
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: orderDetails.items.length,
+                          itemBuilder: (context, index) {
+                            final item = orderDetails.items[index];
+                            return ListTile(
+                              title: Text(item.productName),
+                              subtitle: Text(
+                                  "الكمية المطلوبة: ${item.quantityRequested} | الكمية المعتمدة: ${item.quantityApproved}"),
+                            );
+                          },
+                        ),
+                        SizedBox(height: 20),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: MyColors.orangeBasic,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                            child: Text("إغلاق",
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        )
+                      ],
                     ),
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      "إغلاق",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                )
-              ],
+                  );
+                } else {
+                  return Center(child: Text("لا توجد بيانات"));
+                }
+              },
             ),
           ),
         ),
