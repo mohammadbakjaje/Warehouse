@@ -98,7 +98,7 @@ class NotificationsPage extends StatelessWidget {
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    "${notif.title} رقم ${notif.id}",
+                    "${notif.title} رقم ${notif.relatedId}",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
