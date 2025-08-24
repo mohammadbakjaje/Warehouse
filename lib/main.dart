@@ -6,7 +6,7 @@ import 'package:warehouse/screens/Login/bloc/login_cubit.dart';
 import 'package:warehouse/screens/Login/log_in_screen.dart';
 import 'package:warehouse/screens/Login/log_in_screen_for_warehouse_keeper.dart';
 import 'package:warehouse/screens/MainUser/user_home.dart';
-import 'package:warehouse/screens/NavBar/nav_bar_warehouse.dart';
+import 'package:warehouse/screens/MovementOfMaterial/product_movement.dart';
 import 'package:warehouse/screens/ShowLastRequest/show_last_request.dart';
 import 'package:warehouse/screens/ShowPersonal/show_personal.dart';
 
@@ -36,7 +36,7 @@ class WarehouseApp extends StatelessWidget {
           ShowLastRequest.id: (context) => ShowLastRequest(),
         },
         debugShowCheckedModeBanner: false,
-        home: MainPage(),
+        home: ProductMovement(),
       ),
     );
   }
