@@ -23,16 +23,16 @@ class _AddRequestPage extends State<AddRequestPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        foregroundColor: Colors.white,
-        centerTitle: true,
-        title: Text("طلب المواد"),
-        backgroundColor: Colors.orange,
-      ),
-      body: Directionality(
-        textDirection: TextDirection.rtl,
-        child: BlocProvider(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          foregroundColor: Colors.white,
+          centerTitle: true,
+          title: Text("طلب المواد"),
+          backgroundColor: Colors.orange,
+        ),
+        body: BlocProvider(
           create: (context) => AddRequestBloc(apiService: ApiService()),
           child: Padding(
             padding: const EdgeInsets.all(16.0),

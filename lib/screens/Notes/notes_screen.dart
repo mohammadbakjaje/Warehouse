@@ -74,16 +74,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
+      // 🔹 RTL لكل الصفحة
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            "الإشعارات",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          title: Text("الإشعارات"),
           backgroundColor: MyColors.orangeBasic,
           centerTitle: true,
         ),

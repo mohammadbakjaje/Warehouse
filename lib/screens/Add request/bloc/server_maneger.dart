@@ -4,8 +4,6 @@ import 'package:warehouse/helper/constants.dart';
 
 class ApiService {
   static String baseUrl = '$BaseUrl/products';
-  static String authToken =
-      '4|bvKL6oWZIa8ybiHf7ezQfwssID97cG0VAR7Byj7Xb77819b1';
 
   // دالة لجلب المنتجات باستخدام GET مع معلمات في URL
   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
@@ -48,7 +46,7 @@ class ApiService {
     required int warehouseKeeperId,
     required List<Map<String, String>> items,
   }) async {
-    final url = Uri.parse('http://10.65.0.119:80/api/MRequest');
+    final url = Uri.parse('$BaseUrl/MRequest');
 
     final requestBody = {
       'date': date,
