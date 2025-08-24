@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warehouse/helper/my_colors.dart';
+import 'package:warehouse/screens/MovementOfMaterial/show_product.dart';
 
 class ProductMovement extends StatelessWidget {
   const ProductMovement({super.key});
@@ -18,9 +19,10 @@ class ProductMovement extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: const Text(
-            "حركة المواد - المستودعات",
+            " المستودعات",
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
           centerTitle: true,
@@ -31,50 +33,72 @@ class ProductMovement extends StatelessWidget {
           child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2, // عمودين
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 1.2, // نسبة الطول للعرض
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 6,
+              childAspectRatio: 1.2,
             ),
             itemCount: warehouses.length,
             itemBuilder: (context, index) {
               final warehouse = warehouses[index];
-              return GestureDetector(
-                onTap: () {
-                  // فتح صفحة تفاصيل المستودع
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => WarehouseDetailsPage(
-                        warehouse: warehouse,
-                      ),
-                    ),
-                  );
-                },
-                child: Card(
-                  color: Colors.grey[150],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 4,
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "المستودع ${warehouse["id"]!}",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+              return Card(
+                color: Colors.grey[200],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // النصوص
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "المستودع رقم ${warehouse["id"]!}",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "${warehouse["building"]}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // زر العرض
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: MyColors.orangeBasic,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ShowProduct(
+                                  warehouse: warehouse,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text("عرض"),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          "${warehouse["building"]}",
-                          style:
-                              const TextStyle(fontSize: 14, color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -84,34 +108,4 @@ class ProductMovement extends StatelessWidget {
       ),
     );
   }
-}
-
-// صفحة تفاصيل المستودع
-class WarehouseDetailsPage extends StatelessWidget {
-  final Map<String, String> warehouse;
-
-  const WarehouseDetailsPage({super.key, required this.warehouse});
-
-  @override
-  Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "تفاصيل ${warehouse["id"]}",
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          backgroundColor: MyColors.orangeBasic,
-        ),
-        body: Center(
-          child: Text(
-            "المستودع ${warehouse["id"]} تابع لـ ${warehouse["building"]}",
-            style: const TextStyle(fontSize: 18),
-          ),
-        ),
-      ),
-    );
-  }
-}
+} // صفحة تفاصيل المستودع
