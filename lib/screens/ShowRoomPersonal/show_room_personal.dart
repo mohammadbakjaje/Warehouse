@@ -69,9 +69,9 @@ class ShowRoomPersonal extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 6),
-                            Text("Item Code: ${product["code"]}"),
-                            Text("Quantity: ${item["quantity"]}"),
-                            Text("Exit Note: ${item["notes"]}"),
+                            Text("رمز المنتج: ${product["code"]}"),
+                            Text("الكمية: ${item["quantity"]}"),
+                            Text("ملاحظة الخروج: ${item["notes"]}"),
                             const SizedBox(height: 6),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
@@ -85,14 +85,9 @@ class ShowRoomPersonal extends StatelessWidget {
                                     ),
                                   ),
                                   onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            "Item ${product["name"]} returned."),
-                                      ),
-                                    );
+                                    _showReturnDialog(context, item, product);
                                   },
-                                  child: const Text("Return Item"),
+                                  child: const Text("إرجاع المادة"),
                                 ),
                               ],
                             ),
@@ -109,6 +104,79 @@ class ShowRoomPersonal extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  // Method to show the dialog for quantity input
+  void _showReturnDialog(BuildContext context, dynamic item, dynamic product) {
+    TextEditingController quantityController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("إرجاع كمية من ${product["name"]}"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("الكمية المتاحة: ${item['quantity']}"),
+              TextField(
+                controller: quantityController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: "الكمية التي تريد إرجاعها",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                "إلغاء",
+                style: TextStyle(
+                  color: MyColors.orangeBasic,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                int quantityToReturn =
+                    int.tryParse(quantityController.text) ?? 0;
+                if (quantityToReturn > 0 &&
+                    quantityToReturn <= item['quantity']) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          "تم إرجاع المادة ${product["name"]} بكمية: $quantityToReturn"),
+                    ),
+                  );
+                  Navigator.of(context).pop();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                          Text("الكمية غير صحيحة. الرجاء التحقق من الإدخال."),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: MyColors.orangeBasic,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text("إرجاع"),
+            ),
+          ],
+        );
+      },
     );
   }
 }
