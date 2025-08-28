@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:warehouse/helper/my_colors.dart';
 import 'package:warehouse/screens/ShowRoomPersonal/bloc/room_item_service.dart';
-import 'package:warehouse/screens/ShowRoomPersonal/bloc/show_room_personal_cubit.dart'; // لجلب البيانات
+import 'package:warehouse/screens/ShowRoomPersonal/bloc/show_room_personal_cubit.dart';
+import 'package:intl/intl.dart'; // لإدارة التاريخ
 
 class ShowRoomPersonal extends StatelessWidget {
   static String id = "ShowRoomPersonal";
-
   final String roomNumber;
   final String building;
-  final int custodyId; // custodyId لاستقبال الـ ID
+  final int custodyId;
 
   const ShowRoomPersonal({
     super.key,
     required this.roomNumber,
     required this.building,
-    required this.custodyId, // استقبال custodyId
+    required this.custodyId,
   });
 
   @override
@@ -31,8 +31,8 @@ class ShowRoomPersonal extends StatelessWidget {
           centerTitle: true,
         ),
         body: BlocProvider(
-          create: (context) => RoomItemCubit(RoomItemService())
-            ..loadRoomItems(custodyId), // تمرير custodyId
+          create: (context) =>
+              RoomItemCubit(RoomItemService())..loadRoomItems(custodyId),
           child: BlocBuilder<RoomItemCubit, RoomItemState>(
             builder: (context, state) {
               if (state is RoomItemLoading) {
@@ -110,6 +110,9 @@ class ShowRoomPersonal extends StatelessWidget {
   // Method to show the dialog for quantity input
   void _showReturnDialog(BuildContext context, dynamic item, dynamic product) {
     TextEditingController quantityController = TextEditingController();
+    TextEditingController notesController = TextEditingController();
+    String returnDate =
+        DateFormat('yyyy-MM-dd').format(DateTime.now()); // تاريخ اليوم
 
     showDialog(
       context: context,
@@ -130,6 +133,16 @@ class ShowRoomPersonal extends StatelessWidget {
                   ),
                 ),
               ),
+              Divider(), // فصل بين المدخلات
+              TextField(
+                controller: notesController,
+                decoration: InputDecoration(
+                  labelText: "ملاحظة الإرجاع",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
             ],
           ),
           actions: [
@@ -145,18 +158,53 @@ class ShowRoomPersonal extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-                int quantityToReturn =
-                    int.tryParse(quantityController.text) ?? 0;
+              onPressed: () async {
+                double quantityToReturn =
+                    double.tryParse(quantityController.text) ?? 1;
                 if (quantityToReturn > 0 &&
                     quantityToReturn <= item['quantity']) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          "تم إرجاع المادة ${product["name"]} بكمية: $quantityToReturn"),
-                    ),
-                  );
-                  Navigator.of(context).pop();
+                  // إرسال بيانات الإرجاع إلى الـ API
+                  try {
+                    final response = await RoomItemService().returnItem({
+                      "return_date": returnDate,
+                      "notes": notesController.text,
+                      "items": [
+                        {
+                          "custody_item_id":
+                              item['id'], // استخدام الـ ID الفعلي
+                          "returned_quantity":
+                              quantityToReturn, // استخدام الـ quantity كـ double
+                          "warehouse_id": 1, // استبدال بالـ ID الفعلي للمستودع
+                          "user_notes": notesController.text,
+                        }
+                      ],
+                    });
+
+                    // فحص استجابة الـ API
+                    if (response['success']) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "تم إرجاع المادة ${product["name"]} بكمية: $quantityToReturn",
+                          ),
+                        ),
+                      );
+                      Navigator.of(context).pop();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              Text(response['message'] ?? "خطأ في الإرجاع"),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("حدث خطأ أثناء الإرجاع."),
+                      ),
+                    );
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

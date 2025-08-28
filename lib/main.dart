@@ -7,6 +7,8 @@ import 'package:warehouse/screens/Login/log_in_screen.dart';
 import 'package:warehouse/screens/Login/log_in_screen_for_warehouse_keeper.dart';
 import 'package:warehouse/screens/MainUser/user_home.dart';
 import 'package:warehouse/screens/MovementOfMaterial/product_movement.dart';
+import 'package:warehouse/screens/NavBar/nav_bar_warehouse.dart';
+import 'package:warehouse/screens/ShowLastRequest/BLOC/request_cubit.dart';
 import 'package:warehouse/screens/ShowLastRequest/show_last_request.dart';
 import 'package:warehouse/screens/ShowPersonal/show_personal.dart';
 
@@ -23,7 +25,12 @@ class WarehouseApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (BuildContext context) => LoginCubit()),
+        BlocProvider(
+          create: (BuildContext context) => LoginCubit(),
+        ),
+        BlocProvider<RequestCubit>(
+          create: (context) => RequestCubit(),
+        ),
       ],
       child: MaterialApp(
         routes: {
@@ -36,7 +43,7 @@ class WarehouseApp extends StatelessWidget {
           ShowLastRequest.id: (context) => ShowLastRequest(),
         },
         debugShowCheckedModeBanner: false,
-        home: ProductMovement(),
+        home: MainPage(),
       ),
     );
   }
