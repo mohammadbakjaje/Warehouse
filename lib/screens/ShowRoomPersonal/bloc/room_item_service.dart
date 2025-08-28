@@ -29,25 +29,30 @@ class RoomItemService {
   }
 
   // دالة للإرجاع
+  // دالة للإرجاع
   Future<Map<String, dynamic>> returnItem(Map<dynamic, dynamic> data) async {
-    print(data);
     try {
-      print(data);
       final response = await http.post(
         Uri.parse(returnUrl),
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json', // Ensure this header is set
           'Authorization': 'Bearer $authToken',
         },
         body: jsonEncode(data), // إرسال البيانات كـ JSON
       );
 
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
       if (response.statusCode < 300) {
         return jsonDecode(response.body); // تحويل الاستجابة إلى JSON
       } else {
-        throw Exception("حدث خطأ أثناء الاتصال بالخادم");
+        throw Exception(
+            "حدث خطأ أثناء الاتصال بالخادم: ${response.statusCode}");
       }
     } catch (e) {
+      print("Error in returnItem: $e");
       throw Exception("حدث خطأ أثناء الإرجاع");
     }
   }
