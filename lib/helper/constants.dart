@@ -3,7 +3,7 @@ import 'local_network.dart';
 
 final box = GetStorage();
 String authToken = '3|TetVmvfohi7trLDdVJxlHGahKrQbwVRCwcyr5ywr162e660d';
-final String ipv4 = "10.103.155.154:80";
+final String ipv4 = "10.156.196.154:80";
 String BaseUrl = 'http://$ipv4/api';
 int id = 6;
 String removeChar(String input, String charToRemove) {
