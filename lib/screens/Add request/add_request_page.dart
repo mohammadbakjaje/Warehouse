@@ -5,7 +5,6 @@ import 'package:warehouse/helper/my_colors.dart';
 import 'package:warehouse/screens/Add%20request/bloc/add_request_bloc.dart';
 import 'package:warehouse/screens/Add%20request/bloc/add_request_event.dart';
 import 'package:warehouse/screens/Add%20request/bloc/add_request_state.dart';
-import 'package:warehouse/helper/constants.dart';
 import 'package:warehouse/screens/Add%20request/bloc/server_maneger.dart'; // تأكد من استيراد الـ API
 
 class AddRequestPage extends StatefulWidget {
@@ -169,7 +168,6 @@ class _AddRequestPage extends State<AddRequestPage> {
                             );
                             return;
                           }
-
                           BlocProvider.of<AddRequestBloc>(context).add(
                             AddProductEvent(
                               productId: selectedProduct!['id'],

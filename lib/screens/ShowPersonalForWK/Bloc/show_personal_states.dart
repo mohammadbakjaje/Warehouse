@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-abstract class ShowPersonalState extends Equatable {
+abstract class ShowPersonalState {
   const ShowPersonalState();
 }
 
