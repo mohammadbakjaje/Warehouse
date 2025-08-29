@@ -1,4 +1,5 @@
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 import 'local_network.dart';
 
 final box = GetStorage();
@@ -14,4 +15,11 @@ String removeChar(String input, String charToRemove) {
     }
   }
   return result;
+}
+
+String formatDate(String date) {
+// تحويل التاريخ باستخدام DateFormat
+  DateTime parsedDate = DateTime.parse(date);
+// تنسيق التاريخ ليعرض التاريخ والوقت بالدقائق
+  return DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
 }
