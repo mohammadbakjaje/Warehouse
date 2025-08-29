@@ -45,7 +45,7 @@ class RoomItemService {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
 
-      if (response.statusCode < 300) {
+      if (response.statusCode < 500) {
         return jsonDecode(response.body); // تحويل الاستجابة إلى JSON
       } else {
         throw Exception(

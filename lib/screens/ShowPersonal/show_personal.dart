@@ -71,7 +71,7 @@ class ShowPersonal extends StatelessWidget {
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 10),
                           title: Text(
-                            "العهدة رقم: $roomId",
+                            "العهدة رقم $roomId",
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(

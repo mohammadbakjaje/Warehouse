@@ -121,152 +121,174 @@ class ShowRoomPersonal extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text("إرجاع كمية من ${product["name"]}"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // معلومات المادة
-              ListTile(
-                title: Text(
-                  product["name"] ?? "اسم المنتج",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: AlertDialog(
+            title: Text("إرجاع كمية من المادة:"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Divider(thickness: 1, color: Colors.grey[700]),
+                // معلومات المادة
+                ListTile(
+                  title: Text(
+                    product["name"] ?? "اسم المنتج",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("الكمية المتاحة: ${item['quantity']}"),
+                      Text("رمز المنتج: ${product["code"]}"),
+                    ],
+                  ),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("الكمية المتاحة: ${item['quantity']}"),
-                    Text("رمز المنتج: ${product["code"]}"),
-                  ],
+
+                // خط فاصل
+                Divider(thickness: 1, color: Colors.grey[300]),
+
+                // حقول الإدخال
+                TextField(
+                  controller: quantityController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: "الكمية المراد إرجاعها",
+                    labelStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                          color:
+                              MyColors.orangeBasic), // تحديد اللون عند التركيز
+                    ),
+                  ),
                 ),
+                SizedBox(height: 12),
+                TextField(
+                  cursorColor: MyColors.orangeBasic,
+                  controller: notesController,
+                  decoration: InputDecoration(
+                    labelStyle: TextStyle(color: Colors.grey),
+                    labelText: "ملاحظات الإرجاع",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: MyColors.orangeBasic)),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                          color:
+                              MyColors.orangeBasic), // تحديد اللون عند التركيز
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text("إلغاء",
+                    style: TextStyle(color: MyColors.orangeBasic)),
               ),
+              ElevatedButton(
+                onPressed: () async {
+                  // Parse the quantity as double
+                  double quantityToReturn =
+                      double.tryParse(quantityController.text) ?? 0;
 
-              // خط فاصل
-              Divider(thickness: 1, color: Colors.grey[300]),
+                  // Parse the available quantity from item, ensuring it's a number
+                  double availableQuantity;
+                  if (item['quantity'] is String) {
+                    availableQuantity = double.tryParse(item['quantity']) ?? 0;
+                  } else {
+                    availableQuantity = (item['quantity'] as num).toDouble();
+                  }
 
-              // حقول الإدخال
-              TextField(
-                controller: quantityController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: "الكمية المراد إرجاعها",
-                  border: OutlineInputBorder(
+                  if (quantityToReturn <= 0 ||
+                      quantityToReturn > availableQuantity) {
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(content: Text("الكمية غير صالحة")),
+                    );
+                    return;
+                  }
+
+                  try {
+                    // إنشاء بيانات الإرجاع بشكل صحيح
+                    final returnData = {
+                      "return_date": returnDate,
+                      "notes": notesController.text.isNotEmpty
+                          ? notesController.text
+                          : "إرجاع بدون ملاحظات",
+                      "items": [
+                        {
+                          "custody_item_id": item['id'],
+                          "returned_quantity": quantityToReturn,
+                          "warehouse_id": 1,
+                          "user_notes": notesController.text,
+                        }
+                      ],
+                    };
+
+                    print(
+                        "Sending data: ${jsonEncode(returnData)}"); // Debug print
+
+                    // إظهار مؤشر التحميل
+                    showDialog(
+                      context: dialogContext,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) => Center(
+                        child: CircularProgressIndicator(
+                            color: MyColors.orangeBasic),
+                      ),
+                    );
+
+                    // استدعاء API الإرجاع
+                    final response =
+                        await RoomItemService().returnItem(returnData);
+
+                    // إغلاق مؤشر التحميل
+                    Navigator.of(dialogContext).pop();
+
+                    if (response['success'] == true) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("تم الإرجاع بنجاح")),
+                      );
+
+                      // إغلاق对话框 وتحديث البيانات
+                      Navigator.of(dialogContext).pop();
+                      cubit.loadRoomItems(custodyId);
+                    } else {
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                "${response['message']}" ?? "فشل في الإرجاع")),
+                      );
+                    }
+                  } catch (e) {
+                    // إغلاق مؤشر التحميل في حالة الخطأ
+                    if (Navigator.of(dialogContext).canPop()) {
+                      Navigator.of(dialogContext).pop();
+                    }
+
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(content: Text("حدث خطأ: ${e.toString()}")),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MyColors.orangeBasic,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                controller: notesController,
-                decoration: InputDecoration(
-                  labelText: "ملاحظات الإرجاع",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                child: Text(
+                  "إرجاع",
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child:
-                  Text("إلغاء", style: TextStyle(color: MyColors.orangeBasic)),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Parse the quantity as double
-                double quantityToReturn =
-                    double.tryParse(quantityController.text) ?? 0;
-
-                // Parse the available quantity from item, ensuring it's a number
-                double availableQuantity;
-                if (item['quantity'] is String) {
-                  availableQuantity = double.tryParse(item['quantity']) ?? 0;
-                } else {
-                  availableQuantity = (item['quantity'] as num).toDouble();
-                }
-
-                if (quantityToReturn <= 0 ||
-                    quantityToReturn > availableQuantity) {
-                  ScaffoldMessenger.of(dialogContext).showSnackBar(
-                    SnackBar(content: Text("الكمية غير صالحة")),
-                  );
-                  return;
-                }
-
-                try {
-                  // إنشاء بيانات الإرجاع بشكل صحيح
-                  final returnData = {
-                    "return_date": returnDate,
-                    "notes": notesController.text.isNotEmpty
-                        ? notesController.text
-                        : "إرجاع بدون ملاحظات",
-                    "items": [
-                      {
-                        "custody_item_id": item['id'],
-                        "returned_quantity": quantityToReturn,
-                        "warehouse_id": 1,
-                        "user_notes": notesController.text,
-                      }
-                    ],
-                  };
-
-                  print(
-                      "Sending data: ${jsonEncode(returnData)}"); // Debug print
-
-                  // إظهار مؤشر التحميل
-                  showDialog(
-                    context: dialogContext,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) => Center(
-                      child: CircularProgressIndicator(
-                          color: MyColors.orangeBasic),
-                    ),
-                  );
-
-                  // استدعاء API الإرجاع
-                  final response =
-                      await RoomItemService().returnItem(returnData);
-
-                  // إغلاق مؤشر التحميل
-                  Navigator.of(dialogContext).pop();
-
-                  if (response['success'] == true) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("تم الإرجاع بنجاح")),
-                    );
-
-                    // إغلاق对话框 وتحديث البيانات
-                    Navigator.of(dialogContext).pop();
-                    cubit.loadRoomItems(custodyId);
-                  } else {
-                    ScaffoldMessenger.of(dialogContext).showSnackBar(
-                      SnackBar(
-                          content:
-                              Text(response['message'] ?? "فشل في الإرجاع")),
-                    );
-                  }
-                } catch (e) {
-                  // إغلاق مؤشر التحميل في حالة الخطأ
-                  if (Navigator.of(dialogContext).canPop()) {
-                    Navigator.of(dialogContext).pop();
-                  }
-
-                  ScaffoldMessenger.of(dialogContext).showSnackBar(
-                    SnackBar(content: Text("حدث خطأ: ${e.toString()}")),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: MyColors.orangeBasic,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text("إرجاع"),
-            ),
-          ],
         );
       },
     );

@@ -78,6 +78,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
+          foregroundColor: Colors.white,
           title: Text("الإشعارات"),
           backgroundColor: MyColors.orangeBasic,
           centerTitle: true,
