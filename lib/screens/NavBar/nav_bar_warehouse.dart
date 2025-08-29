@@ -1,5 +1,6 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:warehouse/ProfilePage/profile-page.dart';
 import 'package:warehouse/helper/my_colors.dart';
 import 'package:warehouse/screens/MainUser/user_home.dart';
 
@@ -16,7 +17,7 @@ class _MainPageState extends State<MainPage> {
   // الصفحات يلي عندك
   final List<Widget> _pages = [
     UserHome(),
-    ProfilePage(),
+    ProfileScreen(),
     NotificationsPage(),
   ];
 
@@ -49,13 +50,3 @@ class _MainPageState extends State<MainPage> {
 }
 
 // ====== صفحات مؤقتة (بدلها بصفحاتك الحقيقية) ======
-
-class ProfilePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("المعلومات الشخصية")),
-      body: Center(child: Text("محتوى صفحة الحساب")),
-    );
-  }
-}

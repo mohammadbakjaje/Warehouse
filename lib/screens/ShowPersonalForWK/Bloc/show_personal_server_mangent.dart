@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:warehouse/helper/constants.dart';
 
-class CustodyService {
+class CustodyWKService {
   final String apiUrl = '$BaseUrl/custody/showAll';
 
   Future<List<Map<String, dynamic>>> fetchAllCustody() async {

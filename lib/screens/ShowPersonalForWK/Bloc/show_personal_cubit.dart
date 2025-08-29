@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:warehouse/screens/ShowPersonalForWK/Bloc/show_personal_server_mangent.dart';
+
 import 'package:warehouse/screens/ShowPersonalForWK/Bloc/show_personal_states.dart';
 
 class ShowPersonalCubit extends Cubit<ShowPersonalState> {
-  final CustodyService custodyService;
+  final CustodyWKService custodyService;
 
   ShowPersonalCubit({required this.custodyService})
       : super(ShowPersonalInitial()) {

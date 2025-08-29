@@ -2,19 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:warehouse/helper/constants.dart';
 import 'package:warehouse/helper/my_colors.dart';
-import 'package:warehouse/screens/MovementOfMaterial/Warehouses/Bloc/warehouses-server-mangmet.dart';
-import 'package:warehouse/screens/MovementOfMaterial/Warehouses/Bloc/warehouses_cubit.dart';
-import 'package:warehouse/screens/MovementOfMaterial/Warehouses/Bloc/warehouses_states.dart';
+
+import 'package:warehouse/screens/MovementOfMaterial/show_products/Bloc/show_products_cubit.dart';
+import 'package:warehouse/screens/MovementOfMaterial/show_products/Bloc/show_products_server.dart';
+import 'package:warehouse/screens/MovementOfMaterial/show_products/Bloc/show_products_states.dart';
 import 'package:warehouse/screens/MovementOfMaterial/show_products/show_product.dart';
 
-class WareHouses extends StatelessWidget {
-  const WareHouses({super.key});
+class ProductsPage extends StatelessWidget {
+  final int warehouseId;
+  final String warehouseLocation;
+
+  const ProductsPage({
+    super.key,
+    required this.warehouseId,
+    required this.warehouseLocation,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => WarehouseCubit(warehouseService: WarehouseService())
-        ..loadWarehouses(),
+      create: (_) => ProductCubit(productService: ProductService())
+        ..loadProducts(warehouseId),
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
@@ -28,7 +36,7 @@ class WareHouses extends StatelessWidget {
                     color: MyColors.orangeBasic,
                     alignment: Alignment.center,
                     child: const Text(
-                      'قائمة المستودعات',
+                      'قائمة المنتجات',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -43,23 +51,23 @@ class WareHouses extends StatelessWidget {
               ),
               Positioned.fill(
                 top: 180,
-                child: BlocBuilder<WarehouseCubit, WarehouseState>(
+                child: BlocBuilder<ProductCubit, ProductState>(
                   builder: (context, state) {
-                    if (state is WarehouseLoading) {
+                    if (state is ProductLoading) {
                       return const Center(child: CircularProgressIndicator());
-                    } else if (state is WarehouseLoaded) {
-                      final warehouses = state.warehouses;
+                    } else if (state is ProductLoaded) {
+                      final products = state.products;
                       return ListView.builder(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
-                        itemCount: warehouses.length,
+                        itemCount: products.length,
                         itemBuilder: (context, index) {
-                          final warehouse = warehouses[index];
+                          final product = products[index];
                           return _buildCard(
-                              warehouse, MyColors.orangeBasic, context);
+                              product, MyColors.orangeBasic, context);
                         },
                       );
-                    } else if (state is WarehouseError) {
+                    } else if (state is ProductError) {
                       return Center(child: Text(state.message));
                     }
                     return Container();
@@ -74,7 +82,7 @@ class WareHouses extends StatelessWidget {
   }
 
   Widget _buildCard(
-      Map<String, dynamic> warehouse, Color orangeColor, BuildContext context) {
+      Map<String, dynamic> product, Color orangeColor, BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
@@ -94,7 +102,7 @@ class WareHouses extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "المستودع ${warehouse['id']}",
+              "المنتج ${product['product']['id']}",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -109,7 +117,7 @@ class WareHouses extends StatelessWidget {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    "الموقع: ${warehouse['location']}",
+                    "اسم المنتج: ${product['product']['name']}",
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 ),
@@ -121,7 +129,7 @@ class WareHouses extends StatelessWidget {
                 Icon(Icons.date_range, color: orangeColor, size: 22),
                 const SizedBox(width: 6),
                 Text(
-                  "تاريخ الانشاء: ${formatDate(warehouse['created_at'])}",
+                  "تاريخ الانشاء: ${formatDate(product['product']['created_at'])}",
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
@@ -138,19 +146,23 @@ class WareHouses extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ProductsPage(
-                        warehouseId: warehouse['id'],
-                        warehouseLocation: warehouse['location'],
-                      ),
-                    ),
-                  );
-                },
+                // onPressed: () {
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //       builder: (_) => ProductDetailsPage(
+                //         productId: product['product']['id'],
+                //         productName: product['product']['name'],
+                //         productQuantity: product['quantity'],
+                //         productPrice: product['product']['price'],
+                //         productDate: product['product']['created_at'],
+                //       ),
+                //     ),
+                //   );
+                // },
+                onPressed: () {},
                 child: const Text(
-                  'عرض',
+                  'عرض تفاصيل المنتج',
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),

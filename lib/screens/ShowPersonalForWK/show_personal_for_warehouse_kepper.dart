@@ -12,7 +12,8 @@ class ShowPersonalForWarehouseKepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ShowPersonalCubit(custodyService: CustodyService()),
+      create: (context) =>
+          ShowPersonalCubit(custodyService: CustodyWKService()),
       child: const ShowPersonalView(),
     );
   }
