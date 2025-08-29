@@ -1,156 +1,260 @@
 import 'package:flutter/material.dart';
 import 'package:warehouse/helper/my_colors.dart';
-import 'package:warehouse/screens/MovementOfMaterial/show_product-details.dart';
 
-/// نموذج بيانات المادة
-class Product {
-  final String id;
-  final String name;
-  final int quantity;
-  final String image;
+class ProductsRepository {
+  static Future<List<Map<String, dynamic>>> fetchProducts(
+      int warehouseId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
 
-  Product({
-    required this.id,
-    required this.name,
-    required this.quantity,
-    required this.image,
-  });
+    List<String> productNames = [
+      "مسمار حديد",
+      "لوح خشب",
+      "صامولة",
+      "مسامير خشبية",
+      "مسطرة حديد",
+    ];
+
+    return List.generate(productNames.length, (index) {
+      return {
+        "name": productNames[index],
+        "date": "2025-08-${10 + index}",
+      };
+    });
+  }
 }
 
-/// شاشة عرض المواد في المستودع
-class ShowProduct extends StatelessWidget {
-  final Map<String, String> warehouse;
+class ProductsPage extends StatefulWidget {
+  final int warehouseId;
+  final String warehouseLocation;
 
-  const ShowProduct({super.key, required this.warehouse});
+  const ProductsPage({
+    super.key,
+    required this.warehouseId,
+    required this.warehouseLocation,
+  });
+
+  @override
+  State<ProductsPage> createState() => _ProductsPageState();
+}
+
+class _ProductsPageState extends State<ProductsPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  List<Map<String, dynamic>> products = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _loadProducts();
+  }
+
+  Future<void> _loadProducts() async {
+    products = await ProductsRepository.fetchProducts(widget.warehouseId);
+    setState(() {
+      isLoading = false;
+    });
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    /// قائمة المواد - بيانات تجريبية (يمكنك لاحقًا استبدالها ببيانات API)
-    final List<Product> products = [
-      Product(
-          id: "P101",
-          name: "مادة تنظيف",
-          quantity: 120,
-          image: "https://picsum.photos/200?random=1"),
-      Product(
-          id: "P102",
-          name: "قطع غيار",
-          quantity: 50,
-          image: "https://picsum.photos/200?random=2"),
-      Product(
-          id: "P103",
-          name: "مواد غذائية",
-          quantity: 300,
-          image: "https://picsum.photos/200?random=3"),
-      Product(
-          id: "P104",
-          name: "معدات كهربائية",
-          quantity: 80,
-          image: "https://picsum.photos/200?random=4"),
-      Product(
-          id: "P105",
-          name: "زيوت صناعية",
-          quantity: 60,
-          image: "https://picsum.photos/200?random=5"),
-      Product(
-          id: "P106",
-          name: "أجهزة قياس",
-          quantity: 25,
-          image: "https://picsum.photos/200?random=6"),
-    ];
+    final Color orangeColor = MyColors.orangeBasic;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          foregroundColor: Colors.white,
-          title: Text(
-            "مواد المستودع رقم ${warehouse["id"]}",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                Container(
+                  height: 250,
+                  width: double.infinity,
+                  color: orangeColor,
+                  alignment: Alignment.center,
+                  child: Text(
+                    "منتجات المستودع ${widget.warehouseId}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Expanded(child: Container(color: Colors.grey[200])),
+              ],
+            ),
+            // كروت المنتجات
+            Positioned.fill(
+              top: 180,
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      itemCount: products.length,
+                      itemBuilder: (context, index) {
+                        final product = products[index];
+                        final animation = Tween<Offset>(
+                          begin: const Offset(0, 0.2),
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(
+                            parent: _controller,
+                            curve: Interval(
+                              (index * 0.2),
+                              1.0,
+                              curve: Curves.easeOut,
+                            ),
+                          ),
+                        );
+
+                        return FadeTransition(
+                          opacity: _controller,
+                          child: SlideTransition(
+                            position: animation,
+                            child: _buildProductCard(
+                                product, orangeColor, context),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductCard(
+      Map<String, dynamic> product, Color orangeColor, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetailsPage(
+              id: product['id'],
+              name: product['name'],
+              quantity: product['quantity'],
+              price: product['price'],
+              date: product['date'],
             ),
           ),
-          backgroundColor: MyColors.orangeBasic,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-        body: ListView.separated(
-          padding: const EdgeInsets.all(10),
-          itemCount: products.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            Color cardColor =
-                index % 2 == 0 ? MyColors.background : MyColors.background2;
-            final product = products[index];
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ProductDetail(product: product),
-                  ),
-                );
-              },
-              child: Card(
-                color: cardColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Hero(
-                        tag: product.id,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            product.image,
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              product.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              "رقم المادة: ${product.id}",
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              "الكمية المتاحة: ${product.quantity}",
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // كود المادة أعلى الكارت على اليسار بخط صغير
+            Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                "QRpqr ${product['id']}",
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
-            );
-          },
+            ),
+            const SizedBox(height: 6),
+            // اسم المنتج بخط عريض
+            Text(
+              product['name'],
+              style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
+            ),
+            const SizedBox(height: 8),
+            const Divider(color: Colors.black12),
+            const SizedBox(height: 8),
+            // التاريخ
+            Row(
+              children: [
+                Icon(Icons.date_range, color: orangeColor, size: 22),
+                const SizedBox(width: 6),
+                Text("تاريخ الإضافة: ${product['date']}",
+                    style: const TextStyle(fontSize: 16, color: Colors.grey)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// =====================
+// صفحة تفاصيل المنتج
+// =====================
+class ProductDetailsPage extends StatelessWidget {
+  final int id;
+  final String name;
+  final int quantity;
+  final double price;
+  final String date;
+
+  const ProductDetailsPage({
+    super.key,
+    required this.id,
+    required this.name,
+    required this.quantity,
+    required this.price,
+    required this.date,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color orangeColor = MyColors.orangeBasic;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("تفاصيل المنتج $name"),
+        backgroundColor: orangeColor,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("اسم المنتج: $name", style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 6),
+            Text("رقم المنتج: $id", style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 6),
+            Text("الكمية: $quantity", style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 6),
+            Text("السعر: $price \SYP", style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 6),
+            Text("تاريخ الإضافة: $date", style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 20),
+            const Text(
+              "يمكنك إضافة تفاصيل إضافية هنا مثل الوصف أو ملاحظات أخرى.",
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ],
         ),
       ),
     );

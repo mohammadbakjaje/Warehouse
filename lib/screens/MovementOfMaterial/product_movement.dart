@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:warehouse/helper/my_colors.dart';
+import 'package:warehouse/screens/MovementOfMaterial/show_product.dart';
 
 class ProductMovement extends StatefulWidget {
   const ProductMovement({super.key});
@@ -43,7 +45,7 @@ class _ProductMovementState extends State<ProductMovement>
 
   @override
   Widget build(BuildContext context) {
-    final Color orangeColor = Colors.orange.shade800;
+    final Color orangeColor = MyColors.orangeBasic;
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -54,7 +56,7 @@ class _ProductMovementState extends State<ProductMovement>
             Column(
               children: [
                 Container(
-                  height: 250, // ارتفاع أكبر للون البرتقالي
+                  height: 250,
                   width: double.infinity,
                   color: orangeColor,
                   alignment: Alignment.center,
@@ -67,15 +69,13 @@ class _ProductMovementState extends State<ProductMovement>
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Container(color: Colors.grey[200]),
-                ),
+                Expanded(child: Container(color: Colors.grey[200])),
               ],
             ),
 
             // الكروت الطافية فوق البرتقالي والأبيض
             Positioned.fill(
-              top: 180, // يجعل الكروت تطفو بين اللونين
+              top: 180,
               child: warehouses.isEmpty
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
@@ -114,7 +114,6 @@ class _ProductMovementState extends State<ProductMovement>
     );
   }
 
-  // تصميم الكارت
   Widget _buildCard(
       Map<String, dynamic> warehouse, Color orangeColor, BuildContext context) {
     return Container(
@@ -135,21 +134,16 @@ class _ProductMovementState extends State<ProductMovement>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // العنوان
             Text(
               "المستودع ${warehouse['id']}",
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
             const SizedBox(height: 8),
-            const Divider(
-              color: Colors.black12,
-            ),
-
-            // الموقع
+            const Divider(color: Colors.black12),
             Row(
               children: [
                 Icon(Icons.location_on, color: orangeColor, size: 22),
@@ -163,8 +157,6 @@ class _ProductMovementState extends State<ProductMovement>
               ],
             ),
             const SizedBox(height: 6),
-
-            // عدد المنتجات
             Row(
               children: [
                 Icon(Icons.inventory_2_outlined, color: orangeColor, size: 22),
@@ -176,8 +168,6 @@ class _ProductMovementState extends State<ProductMovement>
               ],
             ),
             const SizedBox(height: 12),
-
-            // زر عرض
             Align(
               alignment: Alignment.centerLeft,
               child: ElevatedButton(
@@ -193,16 +183,15 @@ class _ProductMovementState extends State<ProductMovement>
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => WarehouseDetailsPage(
-                        id: warehouse['id'],
-                        location: warehouse['location'],
-                        products: warehouse['products'],
+                      builder: (_) => ProductsPage(
+                        warehouseId: warehouse['id'],
+                        warehouseLocation: warehouse['location'],
                       ),
                     ),
                   );
                 },
                 child: const Text(
-                  'عرض',
+                  'عرض المنتجات',
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
@@ -214,44 +203,4 @@ class _ProductMovementState extends State<ProductMovement>
   }
 }
 
-class WarehouseDetailsPage extends StatelessWidget {
-  final int id;
-  final String location;
-  final int products;
-
-  const WarehouseDetailsPage({
-    super.key,
-    required this.id,
-    required this.location,
-    required this.products,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Color orangeColor = Colors.orange.shade800;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("تفاصيل المستودع رقم $id"),
-        backgroundColor: orangeColor,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("الموقع: $location", style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-            Text("عدد المنتجات: $products",
-                style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 20),
-            const Text(
-              "يمكنك إضافة تفاصيل أخرى هنا مثل المسؤول عن المستودع أو ملاحظات أخرى.",
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+class WarehouseProductsPage {}
