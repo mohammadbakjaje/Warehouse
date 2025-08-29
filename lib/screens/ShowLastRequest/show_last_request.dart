@@ -15,87 +15,85 @@ class ShowLastRequest extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: MyColors.orangeBasic,
+          foregroundColor: Colors.white,
+          title: Text(
+            "الطلبات السابقة",
+            style: TextStyle(color: Colors.white),
+          ),
+          centerTitle: true,
+        ),
         // تحديد اتجاه النص من اليمين لليسار
-        body: Column(
-          children: [
-            AppBar(
-              backgroundColor: MyColors.orangeBasic,
-              foregroundColor: Colors.white,
-              title: Text(
-                "الطلبات السابقة",
-                style: TextStyle(color: Colors.white),
-              ),
-              centerTitle: true,
-            ),
-            BlocBuilder<RequestCubit, RequestState>(
-              builder: (context, state) {
-                if (state.isLoading) {
-                  return Center(child: CircularProgressIndicator());
-                }
+        body: BlocBuilder<RequestCubit, RequestState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return Center(
+                  child:
+                      CircularProgressIndicator(color: MyColors.orangeBasic));
+            }
 
-                if (state.error.isNotEmpty) {
-                  return Center(child: Text(state.error));
-                }
+            if (state.error.isNotEmpty) {
+              return Center(child: Text(state.error));
+            }
 
-                return Container(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: state.requests.length,
-                          itemBuilder: (context, index) {
-                            // تغيير اللون بين الخلفية 1 و 2
-                            Color cardColor = index % 2 == 0
-                                ? MyColors.background
-                                : MyColors.background2;
+            return Container(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: state.requests.length,
+                      itemBuilder: (context, index) {
+                        // تغيير اللون بين الخلفية 1 و 2
+                        Color cardColor = index % 2 == 0
+                            ? MyColors.background
+                            : MyColors.background2;
 
-                            // تحويل التاريخ من التنسيق الحالي
-                            String formattedDate =
-                                formatDate(state.requests[index]["date"]!);
+                        // تحويل التاريخ من التنسيق الحالي
+                        String formattedDate =
+                            formatDate(state.requests[index]["date"]!);
 
-                            return Card(
-                              color: cardColor,
-                              margin: EdgeInsets.symmetric(vertical: 8),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'رقم الطلب: ${state.requests[index]["id"]}',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Text(
-                                        'التاريخ: $formattedDate',
-                                        textAlign: TextAlign
-                                            .right, // محاذاة النص لليمين
-                                      ),
-                                    ),
-                                    Text(
-                                      'الحالة: ${state.requests[index]["status"]}',
-                                    ),
-                                  ],
+                        return Card(
+                          color: cardColor,
+                          margin: EdgeInsets.symmetric(vertical: 8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'الطلب ${state.requests[index]["id"]}',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                                SizedBox(height: 8),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    'التاريخ: $formattedDate',
+                                    textAlign:
+                                        TextAlign.right, // محاذاة النص لليمين
+                                  ),
+                                ),
+                                Text(
+                                  'الحالة: ${state.requests[index]["status"]}',
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                );
-              },
-            ),
-          ],
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
