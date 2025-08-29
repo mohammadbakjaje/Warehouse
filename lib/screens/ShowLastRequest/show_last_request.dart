@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart'; // استيراد مكتبة intl
+import 'package:warehouse/helper/constants.dart';
 import 'package:warehouse/helper/my_colors.dart';
 import 'package:warehouse/screens/ShowLastRequest/BLOC/request_cubit.dart';
 
@@ -100,10 +101,4 @@ class ShowLastRequest extends StatelessWidget {
   }
 
   // دالة لتحويل التاريخ إلى التنسيق المطلوب
-  String formatDate(String date) {
-    // تحويل التاريخ باستخدام DateFormat
-    DateTime parsedDate = DateTime.parse(date);
-    // تنسيق التاريخ ليعرض التاريخ والوقت بالدقائق
-    return DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
-  }
 }
