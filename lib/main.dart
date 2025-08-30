@@ -11,7 +11,12 @@ import 'package:warehouse/screens/MovementOfMaterial/Warehouses/warehouses.dart'
 import 'package:warehouse/screens/NavBar/nav_bar_warehouse.dart';
 import 'package:warehouse/screens/ShowLastRequest/BLOC/request_cubit.dart';
 import 'package:warehouse/screens/ShowLastRequest/show_last_request.dart';
+import 'package:warehouse/screens/ShowPersonal/bloc/custdy_server_mangment.dart';
 import 'package:warehouse/screens/ShowPersonal/show_personal.dart';
+import 'package:warehouse/screens/ShowPersonalForWK/Bloc/show_personal_cubit.dart';
+import 'package:warehouse/screens/ShowPersonalForWK/Bloc/show_personal_server_mangent.dart';
+import 'package:warehouse/screens/ShowPersonalForWK/show_personal_for_warehouse_kepper.dart';
+import 'package:warehouse/screens/ShowRoomPersonal/show_room_personal.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +37,11 @@ class WarehouseApp extends StatelessWidget {
         BlocProvider<RequestCubit>(
           create: (context) => RequestCubit(),
         ),
+        BlocProvider(
+          create: (context) =>
+              ShowPersonalCubit(custodyService: CustodyWKService()),
+          child: const ShowPersonalView(),
+        ),
       ],
       child: MaterialApp(
         routes: {
@@ -44,7 +54,7 @@ class WarehouseApp extends StatelessWidget {
           ShowLastRequest.id: (context) => ShowLastRequest(),
         },
         debugShowCheckedModeBanner: false,
-        home: WareHouses(),
+        home: MainPage(),
       ),
     );
   }

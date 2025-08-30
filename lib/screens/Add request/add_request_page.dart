@@ -29,7 +29,7 @@ class _AddRequestPage extends State<AddRequestPage> {
           foregroundColor: Colors.white,
           centerTitle: true,
           title: Text("طلب المواد"),
-          backgroundColor: Colors.orange,
+          backgroundColor: MyColors.orangeBasic,
         ),
         body: BlocProvider(
           create: (context) => AddRequestBloc(apiService: ApiService()),
