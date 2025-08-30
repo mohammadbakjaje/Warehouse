@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warehouse/helper/my_colors.dart';
+import 'package:warehouse/screens/MovementOfMaterial/show_product-movement.dart';
 
 class ProductsRepository {
   static Future<List<Map<String, dynamic>>> fetchProducts(
@@ -144,13 +145,13 @@ class _ProductsPageState extends State<ProductsPage>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ProductDetailsPage(
-              id: product['id'],
-              name: product['name'],
-              quantity: product['quantity'],
-              price: product['price'],
-              date: product['date'],
-            ),
+            builder: (_) => ShowProductMovement(
+                // id: product['id'],
+                // name: product['name'],
+                // quantity: product['quantity'],
+                // unit: product['unit'], // تأكد أنه موجود بالداتا
+                // status: product['status'], // تأكد أنه موجود بالداتا
+                ),
           ),
         );
       },
@@ -199,60 +200,6 @@ class _ProductsPageState extends State<ProductsPage>
                 Text("تاريخ الإضافة: ${product['date']}",
                     style: const TextStyle(fontSize: 16, color: Colors.grey)),
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// =====================
-// صفحة تفاصيل المنتج
-// =====================
-class ProductDetailsPage extends StatelessWidget {
-  final int id;
-  final String name;
-  final int quantity;
-  final double price;
-  final String date;
-
-  const ProductDetailsPage({
-    super.key,
-    required this.id,
-    required this.name,
-    required this.quantity,
-    required this.price,
-    required this.date,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Color orangeColor = MyColors.orangeBasic;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("تفاصيل المنتج $name"),
-        backgroundColor: orangeColor,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("اسم المنتج: $name", style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 6),
-            Text("رقم المنتج: $id", style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 6),
-            Text("الكمية: $quantity", style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 6),
-            Text("السعر: $price \SYP", style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 6),
-            Text("تاريخ الإضافة: $date", style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 20),
-            const Text(
-              "يمكنك إضافة تفاصيل إضافية هنا مثل الوصف أو ملاحظات أخرى.",
-              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],
         ),
