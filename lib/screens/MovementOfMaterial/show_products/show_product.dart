@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:warehouse/helper/constants.dart';
 import 'package:warehouse/helper/my_colors.dart';
+import 'package:warehouse/screens/MovementOfMaterial/Movement/movement_material.dart';
 
 import 'package:warehouse/screens/MovementOfMaterial/show_products/Bloc/show_products_cubit.dart';
 import 'package:warehouse/screens/MovementOfMaterial/show_products/Bloc/show_products_server.dart';
@@ -102,7 +103,7 @@ class ProductsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "المنتج ${product['product']['id']}",
+              "${product['product']['name']}",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -146,21 +147,20 @@ class ProductsPage extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),
-                // onPressed: () {
-                //   Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (_) => ProductDetailsPage(
-                //         productId: product['product']['id'],
-                //         productName: product['product']['name'],
-                //         productQuantity: product['quantity'],
-                //         productPrice: product['product']['price'],
-                //         productDate: product['product']['created_at'],
-                //       ),
-                //     ),
-                //   );
-                // },
-                onPressed: () {},
+                onPressed: () {
+                  final int id = product['product']['id'] as int;
+                  final String? name = product['product']['name']?.toString();
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ShowProductMovement(
+                        productId: id,
+                        productNameHint: name, // اختياري لعرضه أثناء التحميل
+                      ),
+                    ),
+                  );
+                },
                 child: const Text(
                   'عرض تفاصيل المنتج',
                   style: TextStyle(color: Colors.white, fontSize: 16),
