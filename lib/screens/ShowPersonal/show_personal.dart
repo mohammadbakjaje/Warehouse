@@ -52,10 +52,10 @@ class ShowPersonal extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ShowRoomPersonal(
-                              custodyId: roomId, // passing the custodyId
                               roomNumber: roomId != null
                                   ? "العهدة رقم: $roomId"
-                                  : "العهدة رقم غير موجودة",
+                                  : "العهدة رقم غير موجودة", // passing the custodyId
+                              custodyId: room['id'],
                               building: notes, // passing notes of custody
                             ),
                           ),

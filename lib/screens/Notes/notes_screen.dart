@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:warehouse/helper/constants.dart';
 import 'package:warehouse/screens/Notes/Bloc/Note_cubit.dart';
 import 'package:warehouse/screens/Notes/Bloc/Note_states.dart';
 import 'package:warehouse/helper/my_colors.dart';
@@ -114,7 +115,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  notif.createdAt,
+                  formatDate(notif.createdAt),
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 ElevatedButton(
@@ -160,12 +161,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 Divider(),
                 SizedBox(height: 8),
                 // استبدل استخدام material بـ title
-                Text("عنوان الإشعار: ${notif.title}",
-                    style: TextStyle(fontSize: 16)),
+                Text("${notif.title}", style: TextStyle(fontSize: 16)),
                 SizedBox(height: 8),
                 // استبدل استخدام quantity بـ message
-                Text("الرسالة: ${notif.message}",
-                    style: TextStyle(fontSize: 16)),
+                Text("${notif.message}", style: TextStyle(fontSize: 16)),
                 SizedBox(height: 20),
                 Align(
                   alignment: Alignment.centerLeft,
