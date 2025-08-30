@@ -5,6 +5,7 @@ import 'package:warehouse/screens/Login/bloc/login_cubit.dart';
 import 'package:warehouse/screens/Login/bloc/login_state.dart';
 import 'package:warehouse/screens/Login/log_in_screen.dart';
 import 'package:warehouse/screens/MainUser/user_home.dart';
+import 'package:warehouse/screens/Nav_WK/nav_wk.dart';
 
 import '../../widget/text_field_custom.dart';
 
@@ -312,7 +313,7 @@ class _LoginScreenState extends State<LogInScreenForWarehouseKeeper> {
                                     if (state is LoginSuccessState) {
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
-                                          builder: (context) => UserHome(),
+                                          builder: (context) => MainPageWK(),
                                         ),
                                       );
                                       print("login");

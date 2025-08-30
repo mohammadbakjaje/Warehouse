@@ -1,4 +1,3 @@
-// notification_model.dart
 class NotificationModel {
   final int id;
   final String title;

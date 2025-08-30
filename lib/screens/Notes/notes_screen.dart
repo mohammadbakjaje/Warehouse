@@ -1,80 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:warehouse/screens/Notes/Bloc/Note_cubit.dart';
+import 'package:warehouse/screens/Notes/Bloc/Note_states.dart';
 import 'package:warehouse/helper/my_colors.dart';
+import 'package:warehouse/screens/Notes/Bloc/Note_model.dart';
 
-// موديل للإشعار
-class NotificationModel {
-  final int id;
-  final String status; // "قبول" أو "رفض"
-  final String message;
-  final String date;
-  final String material;
-  final int quantity;
-
-  NotificationModel({
-    required this.id,
-    required this.status,
-    required this.message,
-    required this.date,
-    required this.material,
-    required this.quantity,
-  });
-
-  factory NotificationModel.fromJson(Map<String, dynamic> json) {
-    return NotificationModel(
-      id: json['id'],
-      status: json['status'],
-      message: json['message'],
-      date: json['date'],
-      material: json['material'],
-      quantity: json['quantity'],
-    );
-  }
-}
-
-//الصفحة الاساسية
 class NotificationsPage extends StatefulWidget {
   @override
   _NotificationsPageState createState() => _NotificationsPageState();
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  late Future<List<NotificationModel>> notificationsFuture;
-
   @override
   void initState() {
     super.initState();
-    notificationsFuture = fetchNotifications(); // استدعاء البيانات
-  }
-
-  // دالة تجيب بيانات (محاكاة - بدالها API/Firebase)
-  Future<List<NotificationModel>> fetchNotifications() async {
-    await Future.delayed(Duration(seconds: 1)); // محاكاة تأخير
-
-    return [
-      NotificationModel(
-        id: 101,
-        status: "قبول",
-        message:
-            "وافق المدير على طلبك يرجى التوجه إلى أمين المستودع لاستلام المواد.",
-        date: "2025-08-21",
-        material: "قلم",
-        quantity: 20,
-      ),
-      NotificationModel(
-        id: 102,
-        status: "رفض",
-        message: "لم تتم الموافقة على طلبك، يرجى مراجعة الإدارة.",
-        date: "2025-08-20",
-        material: "برغي",
-        quantity: 15,
-      ),
-    ];
+    // استدعاء fetchNotifications عند بداية تحميل الصفحة
+    context.read<NotificationCubit>().fetchNotifications();
   }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      // 🔹 RTL لكل الصفحة
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
@@ -83,27 +29,28 @@ class _NotificationsPageState extends State<NotificationsPage> {
           backgroundColor: MyColors.orangeBasic,
           centerTitle: true,
         ),
-        body: FutureBuilder<List<NotificationModel>>(
-          future: notificationsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+        body: BlocBuilder<NotificationCubit, NotificationState>(
+          builder: (context, state) {
+            if (state is NotificationLoading) {
               return Center(
                   child:
                       CircularProgressIndicator(color: MyColors.orangeBasic));
-            } else if (snapshot.hasError) {
-              return Center(child: Text("حدث خطأ أثناء جلب البيانات"));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return _buildEmptyState();
+            } else if (state is NotificationError) {
+              return Center(child: Text(state.message));
+            } else if (state is NotificationLoaded) {
+              final notifications = state.notifications;
+              if (notifications.isEmpty) {
+                return _buildEmptyState();
+              }
+              return ListView.builder(
+                padding: EdgeInsets.all(16),
+                itemCount: notifications.length,
+                itemBuilder: (context, index) {
+                  return _buildNotificationCard(context, notifications[index]);
+                },
+              );
             }
-
-            final notifications = snapshot.data!;
-            return ListView.builder(
-              padding: EdgeInsets.all(16),
-              itemCount: notifications.length,
-              itemBuilder: (context, index) {
-                return _buildNotificationCard(context, notifications[index]);
-              },
-            );
+            return Center(child: Text("لا توجد إشعارات"));
           },
         ),
       ),
@@ -127,7 +74,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildNotificationCard(BuildContext context, NotificationModel notif) {
-    final bool isAccepted = notif.status == "قبول";
+    final bool isAccepted = notif.type == "request_approved";
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -149,7 +96,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    "تم ${notif.status} طلبك رقم ${notif.id}",
+                    " إشعار رقم ${notif.id}",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -162,12 +109,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
               style: TextStyle(fontSize: 14),
             ),
             SizedBox(height: 14),
-            // التاريخ + زر عرض الطلب
+            // التاريخ + زر عرض التفاصيل
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  notif.date,
+                  notif.createdAt,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 ElevatedButton(
@@ -181,7 +128,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     _showOrderDetails(context, notif);
                   },
                   child: Text(
-                    "عرض الطلب",
+                    "عرض التفاصيل",
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -197,7 +144,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
     showDialog(
       context: context,
       builder: (context) => Directionality(
-        // 🔹 حتى الـ Dialog بالعربي
         textDirection: TextDirection.rtl,
         child: Dialog(
           shape:
@@ -213,10 +159,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 Divider(),
                 SizedBox(height: 8),
-                Text(" اسم المادة: ${notif.material}",
+                // استبدل استخدام material بـ title
+                Text("عنوان الإشعار: ${notif.title}",
                     style: TextStyle(fontSize: 16)),
                 SizedBox(height: 8),
-                Text(" الكمية: ${notif.quantity}",
+                // استبدل استخدام quantity بـ message
+                Text("الرسالة: ${notif.message}",
                     style: TextStyle(fontSize: 16)),
                 SizedBox(height: 20),
                 Align(
@@ -229,10 +177,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       ),
                     ),
                     onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      "إغلاق",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    child: Text("إغلاق", style: TextStyle(color: Colors.white)),
                   ),
                 )
               ],

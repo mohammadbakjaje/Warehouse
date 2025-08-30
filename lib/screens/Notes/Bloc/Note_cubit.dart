@@ -1,4 +1,3 @@
-// notification_cubit.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:warehouse/screens/Notes/Bloc/Note_manger.dart';
 import 'package:warehouse/screens/Notes/Bloc/Note_states.dart';
@@ -9,8 +8,8 @@ class NotificationCubit extends Cubit<NotificationState> {
   NotificationCubit(this.notificationService) : super(NotificationInitial());
 
   Future<void> fetchNotifications() async {
-    emit(NotificationLoading());
     try {
+      emit(NotificationLoading());
       final response = await notificationService.fetchNotifications();
       if (response != null) {
         emit(NotificationLoaded(response));
@@ -20,5 +19,11 @@ class NotificationCubit extends Cubit<NotificationState> {
     } catch (e) {
       emit(NotificationError("حدث خطأ أثناء جلب البيانات"));
     }
+  }
+
+  @override
+  Future<void> close() async {
+    // تأكد من إغلاق الـ Cubit بعد الانتهاء من العمليات
+    await super.close(); // استدعاء `close` بعد الانتهاء من كل شيء
   }
 }

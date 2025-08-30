@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:warehouse/helper/constants.dart';
+import 'package:warehouse/helper/local_network.dart';
 
 class CustodyWKService {
   final String apiUrl = '$BaseUrl/custody/showAll';
@@ -12,7 +13,7 @@ class CustodyWKService {
         Uri.parse(apiUrl),
         headers: {
           'Accept': 'application/json',
-          'Authorization': 'Bearer $authToken',
+          'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}',
         },
       );
 

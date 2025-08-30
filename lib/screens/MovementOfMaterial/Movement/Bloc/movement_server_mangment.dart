@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:warehouse/helper/local_network.dart';
 import 'package:warehouse/screens/MovementOfMaterial/Movement/product-movement-model.dart';
 
 class ApiService {
@@ -12,10 +13,10 @@ class ApiService {
       Uri.parse('$baseUrl/product-movements/$productId'),
       headers: {
         'Accept': 'application/json',
-        'Authorization':
-            'Bearer 1|XNFhlaQ12uyX4vFjkbNLJ9PWRo8iSuNmkTEv1ZIBcfa78a69'
+        'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}'
       },
     );
+    print("token is : ${CacheNetwork.getCacheData(key: 'token')}");
     print(response.body);
     if (response.statusCode < 500) {
       final jsonResponse = json.decode(response.body);

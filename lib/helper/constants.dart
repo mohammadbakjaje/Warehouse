@@ -5,7 +5,7 @@ import 'local_network.dart';
 final box = GetStorage();
 String authToken = '3|TetVmvfohi7trLDdVJxlHGahKrQbwVRCwcyr5ywr162e660d';
 final String ipv4 = "192.168.137.61:80";
-String BaseUrl = 'http://$ipv4/api';
+String BaseUrl = 'https://ba86c0d15e29.ngrok-free.app/api';
 int id = 6;
 String removeChar(String input, String charToRemove) {
   String result = "";

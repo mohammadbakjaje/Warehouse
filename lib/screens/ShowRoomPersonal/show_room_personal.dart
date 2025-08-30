@@ -1,11 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:warehouse/helper/my_colors.dart';
 import 'package:warehouse/screens/ShowRoomPersonal/bloc/room_item_service.dart';
 import 'package:warehouse/screens/ShowRoomPersonal/bloc/show_room_personal_cubit.dart';
-import 'package:intl/intl.dart'; // لإدارة التاريخ
 
 class ShowRoomPersonal extends StatelessWidget {
   static String id = "ShowRoomPersonal";
@@ -50,7 +48,7 @@ class ShowRoomPersonal extends StatelessWidget {
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     final item = items[index];
-                    final product = item['product'];
+                    final product = item['product']; // الوصول إلى بيانات المنتج
                     return Card(
                       color: MyColors.background2,
                       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -64,7 +62,7 @@ class ShowRoomPersonal extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              product["name"] ?? "اسم المنتج",
+                              product["name"] ?? "اسم المنتج", // عرض اسم المنتج
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -109,7 +107,6 @@ class ShowRoomPersonal extends StatelessWidget {
     );
   }
 
-  // Method to show the dialog for quantity input
   void _showReturnDialog(BuildContext context, dynamic item, dynamic product) {
     TextEditingController quantityController = TextEditingController();
     TextEditingController notesController = TextEditingController();
@@ -143,10 +140,7 @@ class ShowRoomPersonal extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // خط فاصل
                 Divider(thickness: 1, color: Colors.grey[300]),
-
                 // حقول الإدخال
                 TextField(
                   controller: quantityController,
@@ -193,18 +187,15 @@ class ShowRoomPersonal extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () async {
-                  // Parse the quantity as double
+                  // تحويل الكمية المدخلة إلى قيمة عددية (double)
                   double quantityToReturn =
-                      double.tryParse(quantityController.text) ?? 0;
+                      double.tryParse(quantityController.text) ?? 0.0;
 
-                  // Parse the available quantity from item, ensuring it's a number
-                  double availableQuantity;
-                  if (item['quantity'] is String) {
-                    availableQuantity = double.tryParse(item['quantity']) ?? 0;
-                  } else {
-                    availableQuantity = (item['quantity'] as num).toDouble();
-                  }
+                  // التأكد من أن الكمية المدخلة صحيحة
+                  double availableQuantity =
+                      double.tryParse(item['quantity']) ?? 0.0;
 
+                  // التأكد من أن الكمية المدخلة أقل من الكمية المتاحة
                   if (quantityToReturn <= 0 ||
                       quantityToReturn > availableQuantity) {
                     ScaffoldMessenger.of(dialogContext).showSnackBar(
@@ -213,64 +204,49 @@ class ShowRoomPersonal extends StatelessWidget {
                     return;
                   }
 
+                  // التأكد من تحويل المعرفات إلى أرقام صحيحة
+                  int custodyItemId = item['id']; // المعرف الرقمي للعنصر
+                  int warehouseId =
+                      1; // افتراضياً أن المستودع هو 1، إذا كان مختلفاً تأكد من تغييره
+
+                  // بيانات الإرجاع التي سيتم إرسالها
+                  final returnData = {
+                    "return_date": returnDate,
+                    "notes": notesController.text.isNotEmpty
+                        ? notesController.text
+                        : "إرجاع بدون ملاحظات",
+                    "items": [
+                      {
+                        "custody_item_id":
+                            custodyItemId, // تأكد من أنه قيمة عددية
+                        "returned_quantity":
+                            quantityToReturn, // تأكد من أن الكمية عددية
+                        "warehouse_id": warehouseId,
+                        "user_notes": notesController.text,
+                      }
+                    ],
+                  };
+
                   try {
-                    // إنشاء بيانات الإرجاع بشكل صحيح
-                    final returnData = {
-                      "return_date": returnDate,
-                      "notes": notesController.text.isNotEmpty
-                          ? notesController.text
-                          : "إرجاع بدون ملاحظات",
-                      "items": [
-                        {
-                          "custody_item_id": item['id'],
-                          "returned_quantity": quantityToReturn,
-                          "warehouse_id": 1,
-                          "user_notes": notesController.text,
-                        }
-                      ],
-                    };
-
-                    print(
-                        "Sending data: ${jsonEncode(returnData)}"); // Debug print
-
-                    // إظهار مؤشر التحميل
-                    showDialog(
-                      context: dialogContext,
-                      barrierDismissible: false,
-                      builder: (BuildContext context) => Center(
-                        child: CircularProgressIndicator(
-                            color: MyColors.orangeBasic),
-                      ),
-                    );
-
-                    // استدعاء API الإرجاع
+                    // إرسال بيانات الإرجاع إلى الـ API
                     final response =
                         await RoomItemService().returnItem(returnData);
 
-                    // إغلاق مؤشر التحميل
-                    Navigator.of(dialogContext).pop();
-
+                    // التحقق من استجابة الـ API
                     if (response['success'] == true) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("تم الإرجاع بنجاح")),
                       );
 
-                      // إغلاق对话框 وتحديث البيانات
+                      // تحديث البيانات بعد الإرجاع
                       Navigator.of(dialogContext).pop();
                       cubit.loadRoomItems(custodyId);
                     } else {
                       ScaffoldMessenger.of(dialogContext).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                                "${response['message']}" ?? "فشل في الإرجاع")),
+                        SnackBar(content: Text("${response['message']}")),
                       );
                     }
                   } catch (e) {
-                    // إغلاق مؤشر التحميل في حالة الخطأ
-                    if (Navigator.of(dialogContext).canPop()) {
-                      Navigator.of(dialogContext).pop();
-                    }
-
                     ScaffoldMessenger.of(dialogContext).showSnackBar(
                       SnackBar(content: Text("حدث خطأ: ${e.toString()}")),
                     );

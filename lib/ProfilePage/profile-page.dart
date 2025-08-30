@@ -87,9 +87,12 @@ class ProfileView extends StatelessWidget {
                   const SizedBox(height: 20),
                   // رأس الملف الشخصي
                   const CircleAvatar(
+                    child: Icon(
+                      Icons.person,
+                      size: 50,
+                      color: Colors.grey,
+                    ),
                     radius: 50,
-                    backgroundImage: NetworkImage(
-                        'https://randomuser.me/api/portraits/women/68.jpg'),
                   ),
                   const SizedBox(height: 16),
                   Text(

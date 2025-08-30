@@ -2,15 +2,18 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:warehouse/helper/constants.dart';
+import 'package:warehouse/helper/local_network.dart';
 
 class RequestManager {
   static Future<List<Map<String, String>>> fetchRequests() async {
     try {
       final response = await http.get(
-        Uri.parse('$BaseUrl/material-requests/user/$id'),
+        Uri.parse(
+            '$BaseUrl/material-requests/user/${CacheNetwork.getIntCacheData(key: "userId")}'),
         headers: {
           'Accept': 'application/json', // تحديد نوع المحتوى
-          'Authorization': 'Bearer $authToken', // إضافة التوكن في الهيدر
+          'Authorization':
+              'Bearer ${CacheNetwork.getCacheData(key: 'token')}', // إضافة التوكن في الهيدر
         },
       ); // إضافة استعلام البحث في URL);
       print(response.body);

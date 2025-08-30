@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:warehouse/helper/constants.dart';
+import 'package:warehouse/helper/local_network.dart';
 
 class WarehouseService {
   final String apiUrl = '$BaseUrl/warehouses/index'; // API URL هنا
@@ -11,9 +12,12 @@ class WarehouseService {
     try {
       final response = await http.get(Uri.parse(apiUrl), headers: {
         'Accept': 'application/json', // تحديد نوع المحتوى
-        'Authorization': 'Bearer $authToken', // وضع التوكن الخاص بك هنا
+        'Authorization':
+            'Bearer ${CacheNetwork.getCacheData(key: 'token')}', // وضع التوكن الخاص بك هنا
       });
+
       print(response.body);
+      print("${CacheNetwork.getCacheData(key: 'token')}");
       if (response.statusCode < 500) {
         final data = jsonDecode(response.body);
         if (data['success']) {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:warehouse/helper/constants.dart';
+import 'package:warehouse/helper/local_network.dart';
 
 class CustodyService {
   final String apiUrl = '$BaseUrl/custody/allForUser'; // URL الخاص بالـ API
@@ -10,7 +11,7 @@ class CustodyService {
     try {
       final response = await http.get(Uri.parse(apiUrl), headers: {
         'Accept': 'application/json', // تحديد نوع المحتوى
-        'Authorization': 'Bearer $authToken'
+        'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}'
       });
       print(response.body);
       if (response.statusCode < 300) {

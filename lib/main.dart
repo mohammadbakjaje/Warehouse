@@ -11,6 +11,8 @@ import 'package:warehouse/screens/MovementOfMaterial/Warehouses/warehouses.dart'
 
 import 'package:warehouse/screens/NavBar/nav_bar_warehouse.dart';
 import 'package:warehouse/screens/Nav_WK/nav_wk.dart';
+import 'package:warehouse/screens/Notes/Bloc/Note_cubit.dart';
+import 'package:warehouse/screens/Notes/Bloc/Note_manger.dart';
 import 'package:warehouse/screens/ShowLastRequest/BLOC/request_cubit.dart';
 import 'package:warehouse/screens/ShowLastRequest/show_last_request.dart';
 import 'package:warehouse/screens/ShowPersonal/bloc/custdy_server_mangment.dart';
@@ -44,6 +46,9 @@ class WarehouseApp extends StatelessWidget {
               ShowPersonalCubit(custodyService: CustodyWKService()),
           child: const ShowPersonalView(),
         ),
+        BlocProvider(
+          create: (context) => NotificationCubit(NotificationService()),
+        ),
       ],
       child: MaterialApp(
         routes: {
@@ -56,7 +61,7 @@ class WarehouseApp extends StatelessWidget {
           ShowLastRequest.id: (context) => ShowLastRequest(),
         },
         debugShowCheckedModeBanner: false,
-        home: MainPageWK(),
+        home: LogInScreen(),
       ),
     );
   }

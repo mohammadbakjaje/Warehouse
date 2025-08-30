@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:warehouse/helper/my_colors.dart';
+import 'package:warehouse/screens/Login/log_in_screen.dart';
+import 'package:warehouse/screens/Login/log_in_screen_for_warehouse_keeper.dart';
+import 'package:warehouse/screens/MainUser/repos/logout_server_mangment.dart';
 import 'package:warehouse/screens/ShowPersonalForWK/Bloc/show_personal_cubit.dart';
 import 'package:warehouse/screens/ShowPersonalForWK/Bloc/show_personal_server_mangent.dart';
 import 'package:warehouse/screens/ShowPersonalForWK/Bloc/show_personal_states.dart';
@@ -28,6 +31,21 @@ class ShowPersonalView extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
+          foregroundColor: Colors.white,
+          leading: IconButton(
+              onPressed: () async {
+                try {
+                  await LogoutServerManager.logout();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => LogInScreenForWarehouseKeeper(),
+                    ),
+                  );
+                } on Exception catch (e) {
+                  print("logout failed $e");
+                }
+              },
+              icon: const Icon(Icons.logout)),
           title: const Text(
             "العهد الشخصية لجميع الموظفين",
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),

@@ -32,16 +32,22 @@ class RoomItemCubit extends Cubit<RoomItemState> {
 
       if (data['success']) {
         List<Map<String, dynamic>> itemsList = [];
-        for (var item in data['data'][0]['items']) {
-          // استخراج العناصر من البيانات
-          itemsList.add(item);
+
+        // التحقق من وجود البيانات وصحة هيكلها
+        if (data['data'] != null && data['data']['items'] != null) {
+          for (var item in data['data']['items']) {
+            itemsList.add(item);
+          }
+          emit(RoomItemLoaded(itemsList));
+        } else {
+          emit(RoomItemError("لا توجد عناصر لهذه العهدة."));
         }
-        emit(RoomItemLoaded(itemsList));
       } else {
-        emit(RoomItemError(data['message']));
+        emit(RoomItemError(data['message'] ?? "فشل في تحميل البيانات"));
       }
     } catch (e) {
-      emit(RoomItemError("حدث خطأ أثناء جلب البيانات"));
+      print(e);
+      emit(RoomItemError("$e"));
     }
   }
 }

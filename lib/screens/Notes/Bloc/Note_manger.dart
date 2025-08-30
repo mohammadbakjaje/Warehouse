@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:warehouse/helper/constants.dart';
+import 'package:warehouse/helper/local_network.dart';
 import 'package:warehouse/screens/Notes/Bloc/Note_model.dart';
 import 'package:warehouse/screens/Notes/Bloc/OrderDetailsModel.dart';
 
@@ -13,7 +14,7 @@ class NotificationService {
     try {
       final response = await http.get(Uri.parse(apiUrl), headers: {
         'Accept': 'application/json', // تحديد نوع المحتوى
-        'Authorization': 'Bearer $authToken',
+        'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}',
       });
       print(response.body);
       if (response.statusCode == 200) {
@@ -42,7 +43,7 @@ class NotificationService {
       final response =
           await http.get(Uri.parse('$orderDetailsUrl/$relatedId'), headers: {
         'Accept': 'application/json', // تحديد نوع المحتوى
-        'Authorization': 'Bearer $authToken'
+        'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}'
       });
       print(response.body);
       if (response.statusCode == 200) {

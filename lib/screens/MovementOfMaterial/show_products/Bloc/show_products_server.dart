@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:warehouse/helper/constants.dart';
+import 'package:warehouse/helper/local_network.dart';
 
 class ProductService {
   final String baseUrl =
@@ -10,10 +11,10 @@ class ProductService {
     final response =
         await http.get(Uri.parse('$baseUrl/$warehouseId'), headers: {
       'Accept': 'application/json', // تحديد نوع المحتوى
-      'Authorization':
-          'Bearer 1|XNFhlaQ12uyX4vFjkbNLJ9PWRo8iSuNmkTEv1ZIBcfa78a69',
+      'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}',
     });
     print(response.body);
+    print("${CacheNetwork.getCacheData(key: 'token')}");
     if (response.statusCode < 500) {
       return jsonDecode(response.body); // Parse the response body
     } else {

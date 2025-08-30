@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:warehouse/helper/constants.dart';
+import 'package:warehouse/helper/local_network.dart';
 
 class RoomItemService {
   final String apiUrl =
@@ -14,17 +15,17 @@ class RoomItemService {
         Uri.parse('$apiUrl/$roomId'), // جلب العناصر بناءً على الـ roomId
         headers: {
           'Accept': 'application/json', // تحديد نوع المحتوى
-          'Authorization': 'Bearer $authToken'
+          'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}'
         },
       );
-      print(response.body);
+      print(response.body); // لعرض الـ response في الـ console
       if (response.statusCode < 300) {
         return jsonDecode(response.body); // تحويل الاستجابة إلى JSON
       } else {
         throw Exception("حدث خطأ أثناء الاتصال بالخادم");
       }
     } catch (e) {
-      throw Exception("حدث خطأ أثناء جلب البيانات");
+      throw Exception("$e");
     }
   }
 
@@ -37,7 +38,7 @@ class RoomItemService {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json', // Ensure this header is set
-          'Authorization': 'Bearer $authToken',
+          'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}',
         },
         body: jsonEncode(data), // إرسال البيانات كـ JSON
       );

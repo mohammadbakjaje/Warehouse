@@ -1,6 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:warehouse/helper/constants.dart';
+import 'package:warehouse/helper/local_network.dart';
 
 class ApiManager {
   static Future<Map<String, dynamic>> fetchUserProfile() async {
@@ -9,7 +10,7 @@ class ApiManager {
         Uri.parse('$BaseUrl/v1/me'),
         headers: {
           'Accept': 'application/json',
-          'Authorization': 'Bearer $authToken',
+          'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}',
         },
       );
 

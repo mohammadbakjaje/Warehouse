@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:warehouse/helper/constants.dart';
+import 'package:warehouse/helper/local_network.dart';
 
 class ApiService {
   static String baseUrl = '$BaseUrl/products';
@@ -15,7 +16,8 @@ class ApiService {
         Uri.parse('$baseUrl?name=$query'),
         headers: {
           'Accept': 'application/json', // تحديد نوع المحتوى
-          'Authorization': 'Bearer $authToken', // إضافة التوكن في الهيدر
+          'Authorization':
+              'Bearer ${CacheNetwork.getCacheData(key: 'token')}', // إضافة التوكن في الهيدر
         }, // إضافة استعلام البحث في URL
       );
 
@@ -23,7 +25,7 @@ class ApiService {
       print("API Response Status: ${response.statusCode}");
       print("API Response Body: ${response.body}");
 
-      if (response.statusCode == 201) {
+      if (response.statusCode < 500) {
         final Map<String, dynamic> data = json.decode(response.body);
         if (data['success']) {
           List<dynamic> products = data['data']['products'];
@@ -65,7 +67,7 @@ class ApiService {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $authToken',
+        'Authorization': 'Bearer ${CacheNetwork.getCacheData(key: 'token')}',
       },
       body: json.encode(requestBody),
     );

@@ -18,7 +18,7 @@ class LogoutServerManager {
         Uri.parse('$BaseUrl/logout'),
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": "Bearer $token",
+          "Authorization": "Bearer ${CacheNetwork.getCacheData(key: 'token')}",
         },
       );
 
